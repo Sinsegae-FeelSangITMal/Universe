@@ -3,6 +3,7 @@ package com.sinse.universe.domain;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Table(name = "ARTIST")
@@ -19,22 +20,22 @@ public class Artist {
     private String name;
 
     @Column(name = "AR_DESC")
-    private String desc;
+    private String description;
 
     @Column(name = "AR_IMG")
-    private String imgUrl;
+    private String img;
 
     @Column(name = "AR_LOGO_IMG")
-    private String logoImgUrl;
+    private String logoImg;
 
     @Column(name = "AR_DEBUT_DATE")
-    private Date debutDate;
+    private LocalDate debutDate;
 
     @Column(name = "AR_INSTA")
-    private String instaUrl;
+    private String insta;
 
     @Column(name = "AR_YOUTUBE")
-    private String youtubeUrl;
+    private String youtube;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PT_ID")

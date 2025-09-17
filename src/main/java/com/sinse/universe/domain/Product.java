@@ -13,7 +13,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PD_ID")
-    private Integer id;
+    private int id;
 
     @Column(name = "PD_NAME", nullable = false, length = 200)
     private String name;
@@ -22,10 +22,10 @@ public class Product {
     private String description;
 
     @Column(name = "PD_MAIN_IMG")
-    private String mainImageUrl;
+    private String mainImage;
 
     @Column(name = "PD_DETAIL_IMG")
-    private String detailImageUrl;
+    private String detailImage;
 
     @Column(name = "PD_PRICE", nullable = false)
     private BigDecimal price;
@@ -45,12 +45,10 @@ public class Product {
     @Column(name = "PD_ACTIVE_YN")
     private Boolean active = true;
 
-    // FK: CATEGORY
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CT_ID")
     private Category category;
 
-    // FK: PARTNER
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AR_ID")
     private Artist artist;
