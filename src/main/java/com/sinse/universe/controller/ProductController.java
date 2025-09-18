@@ -1,19 +1,24 @@
 package com.sinse.universe.controller;
 
 import com.sinse.universe.domain.Product;
-import com.sinse.universe.dto.request.ProductRequest;
+import com.sinse.universe.dto.request.ProductRegistRequest;
 import com.sinse.universe.dto.response.ProductResponse;
 import com.sinse.universe.model.product.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @RestController
 public class ProductController {
 
@@ -47,9 +52,17 @@ public class ProductController {
         return ResponseEntity.ok(dtoPage);
     }
 
-    @PostMapping("/products")
-    public ResponseEntity<?> registProduct(@RequestBody ProductRequest productRequest) {
+    @PostMapping(value = "/products", consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> registerProduct(@ModelAttribute ProductRegistRequest productRegistRequest,
+                                             @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
+                                             @RequestPart(value = "detailImages", required = false) List<MultipartFile> detailImages) {
 
+        log.debug("products regist 호출");
+        log.debug(productRegistRequest.toString());
+        log.debug("대표이미지: " + (mainImage != null ? mainImage.getOriginalFilename() : "없음"));
+        log.debug("상세이미지 개수: " + (detailImages != null ? detailImages.size() : 0));
+
+        return ResponseEntity.ok(Map.of("result", "등록 성공"));
     }
 
 }

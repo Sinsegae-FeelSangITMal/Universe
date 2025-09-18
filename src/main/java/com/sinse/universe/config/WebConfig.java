@@ -19,7 +19,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // 모든 요청 경로 허용
-                .allowedOrigins("http://localhost:5174")
+                .allowedOrigins("http://localhost:5555")
                     .allowedMethods("GET", "POST", "PUT", "DELETE")
                     .allowCredentials(true); // 인증정보(쿠키) 포함 허용 여부
             }
