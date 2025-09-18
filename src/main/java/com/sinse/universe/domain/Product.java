@@ -28,7 +28,7 @@ public class Product {
     private String detailImage;
 
     @Column(name = "PD_PRICE", nullable = false)
-    private BigDecimal price;
+    private Integer price;
 
     @Column(name = "PD_OPEN_DATE")
     private LocalDateTime openDate;

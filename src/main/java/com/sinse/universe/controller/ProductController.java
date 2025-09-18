@@ -23,7 +23,6 @@ public class ProductController {
         this.productService = productService;
     }
 
-
     /**
      * 상품 페이지 조회 (아티스트별 필터 가능)
      * 예: GET  /products?page=0&size=20&sort=id,desc
@@ -47,4 +46,10 @@ public class ProductController {
         Page<ProductResponse> dtoPage = new PageImpl<>(content, pageable, page.getTotalElements());
         return ResponseEntity.ok(dtoPage);
     }
+
+    @PostMapping("/products")
+    public ResponseEntity<?> registProduct(@RequestBody ProductRequest productRequest) {
+
+    }
+
 }

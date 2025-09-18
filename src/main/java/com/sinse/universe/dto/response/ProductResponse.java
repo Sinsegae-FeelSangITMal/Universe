@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 public record ProductResponse(
         Integer id,
         String name,
-        BigDecimal price,
+        Integer price,
         Integer stockQty,
         String categoryName,
         String artistName
