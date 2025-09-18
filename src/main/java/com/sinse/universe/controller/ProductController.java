@@ -49,7 +49,7 @@ public class ProductController {
 
     @PostMapping("/products")
     public ResponseEntity<?> registProduct(@RequestBody ProductRequest productRequest) {
-
+        return null;
     }
 
 }
