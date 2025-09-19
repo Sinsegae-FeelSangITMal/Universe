@@ -14,16 +14,16 @@ public class PartnerUser {
     @Column(name = "PT_US_ID")
     private int id;
 
-    @Column(name = "PT_ROLE")
-    @Enumerated(EnumType.STRING) // String은 "ADMIN, MANAGER"로 매핑, EnumType.ORDINAL 0, 1, 2 숫자로 저장됨
+    @Column(name = "PT_ROLE", nullable = false)
+    @Enumerated(EnumType.STRING) // String은 "SUPER, MANAGER"로 매핑, EnumType.ORDINAL 0, 1, 2 숫자로 저장됨
     private PartnerRole role;
 
-    @OneToOne
-    @JoinColumn(name = "UR_ID")  //DB 컬럼명
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UR_ID", nullable = false)  //DB 컬럼명
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "PT_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PT_ID", nullable = false)
     private Partner partner;
 
 }

@@ -1,15 +1,14 @@
 package com.sinse.universe.domain;
 
-import com.sinse.universe.enums.UserRole;
 import com.sinse.universe.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 @Table(name="USERS")
-@Data
 public class User {
 
     @Id
@@ -17,29 +16,23 @@ public class User {
     @Column(name = "UR_ID")
     private int id;
 
-    @Column(name="UR_LOGIN_ID")
+    @Column(name="UR_LOGIN_ID", nullable = false, unique = true)
     private String loginId;
 
-    @Column(name = "UR_PWD")
+    @Column(name = "UR_PWD", nullable = false)
     private String password;
 
-    @Column(name = "UR_EMAIL")
-    private String email;
-
-    @Column(name = "UR_PHONE")
-    private String phone;
-
-    @Column(name = "UR_NAME")
+    @Column(name = "UR_NAME", nullable = false)
     private String name;
 
-    @Column(name = "UR_STATUS")
+    @Column(name = "UR_STATUS", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @Column(name = "UR_JOIN_DATE")
+    @Column(name = "UR_JOIN_DATE", nullable = false, insertable = false, updatable = false)
     private LocalDateTime joinDate;
 
-    @Column(name = "UR_ROLE")
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RO_ID", nullable = false)
+    private Role role;
 }
