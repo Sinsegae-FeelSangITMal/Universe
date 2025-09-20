@@ -21,7 +21,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse<Object>> handleCustomException(CustomException e) {
+    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
         log.error("CustomException 발생 - code: {}, message: {}", e.getErrorCode(), e.getErrorCode().getDetail(), e);
         return ApiResponse.error(e.getErrorCode());
     }
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
      * 잡히지 않은 예외가 있는 경우에도 로그에 찍히도록 보장
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Object>> handleException(Exception e) {
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("Unhandled Exception 발생", e);
         return ApiResponse.error(ErrorCode.UNHANDLED_EXCEPTION);
     }

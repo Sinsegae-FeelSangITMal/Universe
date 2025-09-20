@@ -7,7 +7,6 @@ import com.sinse.universe.model.common.EmailServiceImpl;
 import com.sinse.universe.util.CodeGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -34,23 +33,15 @@ public class AuthServiceImpl {
         this.verificationEmailRepository = verificationCodeRepository;
     }
 
-    // 서비스 계층에서 예외 발생 시 도메인 예외로 바꿔서 컨트롤러로 전달
     public void sendVerificationCode(String toEmail) {
-        try {
-            //이메일 중복확인
-            if(userService.checkDuplicateEmail(toEmail)){
-                throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
-            }
+        userService.checkDuplicateEmail(toEmail);  //이메일 중복확인
 
-            // 인증 코드 생성, 전송 redis에 저장
-            String code = CodeGenerator.generate6DigitCode();
-            emailService.sendMail(toEmail, "Universe 인증 코드", code);
-            verificationEmailRepository.saveCode(toEmail, code, verfiicationCodeTtl);
+        // 인증 코드 생성, 전송 redis에 저장
+        String code = CodeGenerator.generate6DigitCode();
+        emailService.sendMail(toEmail, "Universe 인증 코드", code);
+        verificationEmailRepository.saveCode(toEmail, code, verfiicationCodeTtl);
 
-            log.info("이메일 인증 코드 전송 완료 - to={}, code={}", toEmail, code);
-        } catch (MailException e) {
-            throw new CustomException(ErrorCode.MAIL_SEND_FAILED, e);
-        }
+        log.info("이메일 인증 코드 전송 완료 - to={}, code={}", toEmail, code);
     }
 
     public void verifyEmail(String email, String inputCode){

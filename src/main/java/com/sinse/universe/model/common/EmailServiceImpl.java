@@ -1,6 +1,9 @@
 package com.sinse.universe.model.common;
 
+import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.exception.CustomException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,10 @@ public class EmailServiceImpl {
         mail.setText(text);
         mail.setFrom(from);
 
-        javaMailSender.send(mail);
+        try {
+            javaMailSender.send(mail);
+        } catch (MailException e) {
+            throw new CustomException(ErrorCode.MAIL_SEND_FAILED, e);
+        }
     }
 }

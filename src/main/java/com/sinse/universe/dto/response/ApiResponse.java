@@ -41,16 +41,16 @@ public class ApiResponse<T> {
 
     // 성공응답 - 데이터 없음
     // 사용: ApiResponse.success(String msg)
-    public static <T> ResponseEntity<ApiResponse<T>> success(String message) {
+    public static ResponseEntity<ApiResponse<Void>> success(String message) {
         return success(message, null);
     }
 
     // 실패응답
     // 사용: ApiResponse.error(ErrorCode ec, Object data)
-    public static ResponseEntity<ApiResponse<Object>> error(ErrorCode errorCode, Object data){
+    public static <T> ResponseEntity<ApiResponse<T>> error(ErrorCode errorCode, T data){
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
-                .body(ApiResponse.builder()
+                .body(ApiResponse.<T>builder()
                         .success(false)
                         .message(errorCode.getDetail())
                         .code(errorCode.name())
@@ -60,7 +60,7 @@ public class ApiResponse<T> {
     }
 
     // 사용: ApiResponse.error(ErrorCode ec)
-    public static ResponseEntity<ApiResponse<Object>> error(ErrorCode errorCode){
+    public static ResponseEntity<ApiResponse<Void>> error(ErrorCode errorCode){
         return error(errorCode, null);
     }
 }

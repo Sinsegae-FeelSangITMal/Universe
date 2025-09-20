@@ -2,11 +2,17 @@ package com.sinse.universe.domain;
 
 import com.sinse.universe.enums.UserStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name="USERS")
 public class User {
@@ -32,7 +38,7 @@ public class User {
     @Column(name = "UR_JOIN_DATE", nullable = false, insertable = false, updatable = false)
     private LocalDateTime joinDate;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RO_ID", nullable = false)
     private Role role;
 }
