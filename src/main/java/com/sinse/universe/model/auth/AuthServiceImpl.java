@@ -18,17 +18,20 @@ public class AuthServiceImpl {
 
     // 스프링 부트는 Duration 바인딩을 지원. (ms, s, m, h 등 단위 가능)
     // email.verify.ttl=3m  -> 3분
-    @Value("${email.verify.ttl}")
-    private Duration emailVerfiicationTtl;
+    @Value("${email.verification-code.ttl}")
+    private Duration verfiicationCodeTtl;
+
+    @Value("${email.verified-email.ttl}")
+    private Duration verifiedEmailTtl;
 
     private final EmailServiceImpl emailService;
     private final UserServiceImpl userService;
-    private final VerificationCodeRepository verificationCodeRepository;
+    private final VerificationEmailRepository verificationEmailRepository; //레디스 저장소
 
-    public AuthServiceImpl(EmailServiceImpl emailService, UserServiceImpl userService, VerificationCodeRepository verificationCodeRepository) {
+    public AuthServiceImpl(EmailServiceImpl emailService, UserServiceImpl userService, VerificationEmailRepository verificationCodeRepository) {
         this.emailService = emailService;
         this.userService = userService;
-        this.verificationCodeRepository = verificationCodeRepository;
+        this.verificationEmailRepository = verificationCodeRepository;
     }
 
     // 서비스 계층에서 예외 발생 시 도메인 예외로 바꿔서 컨트롤러로 전달
@@ -42,11 +45,23 @@ public class AuthServiceImpl {
             // 인증 코드 생성, 전송 redis에 저장
             String code = CodeGenerator.generate6DigitCode();
             emailService.sendMail(toEmail, "Universe 인증 코드", code);
-            verificationCodeRepository.saveCode(toEmail, code, emailVerfiicationTtl);
+            verificationEmailRepository.saveCode(toEmail, code, verfiicationCodeTtl);
 
             log.info("이메일 인증 코드 전송 완료 - to={}, code={}", toEmail, code);
         } catch (MailException e) {
             throw new CustomException(ErrorCode.MAIL_SEND_FAILED, e);
         }
+    }
+
+    public void verifyEmail(String email, String inputCode){
+        // 코드 시간 만료
+        String storedCode = verificationEmailRepository.getCode(email)
+                .orElseThrow(()-> new CustomException(ErrorCode.VERIFICATION_CODE_EXPIRED));
+        // 코드 불일치
+        if(!storedCode.equals(inputCode)){
+            throw new CustomException(ErrorCode.VERIFICATION_CODE_INVALID);
+        }
+        verificationEmailRepository.saveVerifiedEmail(email, verifiedEmailTtl);
+        log.info("이메일 인증 코드 검증 성공 verified={}", email);
     }
 }
