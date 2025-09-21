@@ -1,5 +1,7 @@
 package com.sinse.universe.model.auth;
 
+import com.sinse.universe.domain.User;
+import com.sinse.universe.dto.request.UserJoinRequest;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.user.UserServiceImpl;
@@ -54,5 +56,20 @@ public class AuthServiceImpl {
         }
         verificationEmailRepository.saveVerifiedEmail(email, verifiedEmailTtl);
         log.info("이메일 인증 코드 검증 성공 verified={}", email);
+    }
+
+    public void join(UserJoinRequest form) {
+        // 이메일 중복, 인증, 비밀번호 일치 검증
+        userService.checkDuplicateEmail(form.email());
+
+        if(!verificationEmailRepository.isVerified(form.email())){
+            throw new CustomException(ErrorCode.NOT_VERIFIED_EMAIL);
+        }
+        if (!form.password().equals(form.passwordConfirm())) {
+            throw new CustomException(ErrorCode.PASSWORD_CONFIRM_NOT_MATCH);
+        }
+
+        User user = userService.createUser(form);
+        log.info("회원가입 성공 user={}", user);
     }
 }

@@ -27,4 +27,8 @@ public class VerificationEmailRepository {
     public void saveVerifiedEmail(String email, Duration ttl) {
         redisTemplate.opsForValue().set(VERIFIED_EMAIL_PREFIX + email, "true", ttl);
     }
+
+    public boolean isVerified(String email){
+        return redisTemplate.hasKey(VERIFIED_EMAIL_PREFIX + email);
+    }
 }
