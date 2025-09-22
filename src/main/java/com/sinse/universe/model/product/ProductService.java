@@ -1,16 +1,18 @@
 package com.sinse.universe.model.product;
 
 import com.sinse.universe.domain.Product;
+import com.sinse.universe.dto.request.ProductRegistRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface ProductService {
 
-    public List<Product> selectAll();
-    public Product select(int productId);
-    public void regist(Product product);
+    public int regist(ProductRegistRequest req,
+                       MultipartFile mainImage,
+                       List<MultipartFile> detailImages);
     public void update(Product product);
     public void delete(int productId);
 

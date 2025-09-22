@@ -4,6 +4,7 @@ import com.sinse.universe.domain.Product;
 import com.sinse.universe.dto.request.ProductRegistRequest;
 import com.sinse.universe.dto.response.ProductResponse;
 import com.sinse.universe.model.product.ProductService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,11 +16,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @RestController
+@RequestMapping("/api/ent/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -53,16 +56,18 @@ public class ProductController {
     }
 
     @PostMapping(value = "/products", consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> registerProduct(@ModelAttribute ProductRegistRequest productRegistRequest,
+    public ResponseEntity<?> registerProduct(@ModelAttribute @Valid ProductRegistRequest productRegistRequest,
                                              @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
                                              @RequestPart(value = "detailImages", required = false) List<MultipartFile> detailImages) {
+        // Multipart에서 detailImages 파트가 아예 안 오면 null일 수 있으니 방어
+        if (detailImages == null) detailImages = List.of();
 
-        log.debug("products regist 호출");
-        log.debug(productRegistRequest.toString());
-        log.debug("대표이미지: " + (mainImage != null ? mainImage.getOriginalFilename() : "없음"));
-        log.debug("상세이미지 개수: " + (detailImages != null ? detailImages.size() : 0));
+        int createdId = productService.regist(productRegistRequest, mainImage, detailImages);
 
-        return ResponseEntity.ok(Map.of("result", "등록 성공"));
+        // Location 헤더: /products/{id}
+        URI location = URI.create("/api/products/" + createdId);
+        return ResponseEntity.created(location)
+                .body(Map.of("id", createdId, "result", "등록 성공"));
     }
 
 }
