@@ -22,7 +22,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/ent/products")
+@RequestMapping("/api/ent")
 public class ProductController {
 
     private final ProductService productService;
@@ -52,6 +52,7 @@ public class ProductController {
                 .toList();
 
         Page<ProductResponse> dtoPage = new PageImpl<>(content, pageable, page.getTotalElements());
+
         return ResponseEntity.ok(dtoPage);
     }
 
