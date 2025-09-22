@@ -1,14 +1,20 @@
 package com.sinse.universe.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "ARTIST")
 @Entity
 @Data
+@ToString(exclude = "partner")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Artist {
 
     @Id
@@ -39,5 +45,11 @@ public class Artist {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PT_ID")
+    @JsonIgnore  // ✅ JSON 응답에서 제외
     private Partner partner;
+
+    @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Member> members = new ArrayList<>();
+
+
 }
