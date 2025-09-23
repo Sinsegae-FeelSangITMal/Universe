@@ -2,6 +2,7 @@ package com.sinse.universe.controller;
 
 import com.sinse.universe.domain.Product;
 import com.sinse.universe.dto.request.ProductRegistRequest;
+import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.ProductResponse;
 import com.sinse.universe.model.product.ProductService;
 import jakarta.validation.Valid;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,13 +34,19 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<ApiResponse<ProductResponse>> getProductDetail(@PathVariable Integer productId) {
+        ProductResponse dto = productService.getProductDetail(productId);
+        return ApiResponse.success("조회 성공", dto);
+    }
+
     /**
      * 상품 페이지 조회 (아티스트별 필터 가능)
      * 예: GET  /products?page=0&size=20&sort=id,desc
      * 예: GET /products?artistId=3&page=0&size=10
      */
     @GetMapping("/products")
-    public ResponseEntity<Page<ProductResponse>> getProducts(
+    public ResponseEntity<ApiResponse<Page<ProductResponse>>> getProducts(
             @RequestParam(required = false) Integer artistId,
             // 기본 정렬을 지정하고 싶다면 @PageableDefault 사용
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
@@ -53,22 +62,29 @@ public class ProductController {
 
         Page<ProductResponse> dtoPage = new PageImpl<>(content, pageable, page.getTotalElements());
 
-        return ResponseEntity.ok(dtoPage);
+        return ApiResponse.success(("ProductDtoPage 반환 성공"), dtoPage);
     }
 
-    @PostMapping(value = "/products", consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> registerProduct(@ModelAttribute @Valid ProductRegistRequest productRegistRequest,
-                                             @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
-                                             @RequestPart(value = "detailImages", required = false) List<MultipartFile> detailImages) {
-        // Multipart에서 detailImages 파트가 아예 안 오면 null일 수 있으니 방어
+    @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Map<String, Object>>> registerProduct(
+            @ModelAttribute @Valid ProductRegistRequest productRegistRequest,
+            @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
+            @RequestPart(value = "detailImages", required = false) List<MultipartFile> detailImages
+    ) {
         if (detailImages == null) detailImages = List.of();
 
         int createdId = productService.regist(productRegistRequest, mainImage, detailImages);
+        URI location = URI.create("/api/ent/products/" + createdId);
 
-        // Location 헤더: /products/{id}
-        URI location = URI.create("/api/products/" + createdId);
-        return ResponseEntity.created(location)
-                .body(Map.of("id", createdId, "result", "등록 성공"));
+        ApiResponse<Map<String, Object>> body = ApiResponse.<Map<String, Object>>builder()
+                .success(true)
+                .message("등록 성공")
+                .code("SUCCESS")
+                .data(Map.of("id", createdId))
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(location);
+        return new ResponseEntity<>(body, headers, HttpStatus.CREATED);
     }
-
 }

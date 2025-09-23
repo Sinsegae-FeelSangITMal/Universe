@@ -18,7 +18,6 @@ public record ProductResponse(
                 p.getName(),
                 p.getPrice(),
                 p.getStockQuantity(),
-                // LAZY라도 서비스에서 fetch join 해왔으므로 안전하게a 접근 가능
                 p.getCategory() != null ? p.getCategory().getName() : null,
                 p.getArtist()   != null ? p.getArtist().getName()   : null
         );

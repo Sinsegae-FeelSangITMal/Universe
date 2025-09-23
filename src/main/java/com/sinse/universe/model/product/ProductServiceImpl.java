@@ -2,6 +2,9 @@ package com.sinse.universe.model.product;
 
 import com.sinse.universe.domain.*;
 import com.sinse.universe.dto.request.ProductRegistRequest;
+import com.sinse.universe.dto.response.ProductResponse;
+import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.model.category.CategoryRepository;
 import com.sinse.universe.util.UploadManager;
@@ -33,16 +36,15 @@ public class ProductServiceImpl implements ProductService {
     private final ProductImageRepository productImageRepository;
     private final CategoryRepository categoryRepository;
     private final ArtistRepository artistRepository;
-    private final UploadManager uploadManager;
 
     public ProductServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository,
-                              CategoryRepository categoryRepository, ArtistRepository artistRepository, UploadManager uploadManager) {
+                              CategoryRepository categoryRepository, ArtistRepository artistRepository) {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
         this.categoryRepository = categoryRepository;
         this.artistRepository = artistRepository;
-        this.uploadManager = uploadManager;
     }
+
     @Transactional
     public int regist(ProductRegistRequest req,
                       MultipartFile mainImage,
@@ -129,9 +131,38 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public ProductResponse getProductDetail(Integer productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        // 이미지 로드 (원하는 방식으로 골라 쓰세요)
+        // 1) productId로
+        List<ProductImage> images = productImageRepository.findByProductId(productId);
+
+        // 메인 1장
+        String mainImageUrl = images.stream()
+                .filter(img -> img.getRole() == ProductImage.Role.MAIN)
+                .findFirst()
+                .map(ProductImage::getUrl)
+                .orElse(null);
+
+        // 상세 N장
+        List<ProductResponse.ImageDto> detailImages = images.stream()
+                .filter(img -> img.getRole() == ProductImage.Role.DETAIL)
+                .map(img -> new ProductResponse.ImageDto(img.getId(), img.getUrl()))
+                .toList();
+
+        // DTO 변환 (from 오버로드 사용)
+        return ProductResponse.from(product, mainImageUrl, detailImages);
+    }
+
 
     @Override
-    public void update(Product product) {
+    public void update(ProductRegistRequest req,
+                       MultipartFile mainImage,
+                       List<MultipartFile> detailImages){
 
     }
 

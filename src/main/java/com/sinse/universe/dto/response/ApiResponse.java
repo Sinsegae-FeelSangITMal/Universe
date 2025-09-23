@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
+
 /**
  * Http 응답 메시지 구조 표준화
  */
