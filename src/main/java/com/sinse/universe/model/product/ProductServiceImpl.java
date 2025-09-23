@@ -5,6 +5,7 @@ import com.sinse.universe.dto.request.ProductRegistRequest;
 import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.model.category.CategoryRepository;
 import com.sinse.universe.util.UploadManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,8 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
+@Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -48,37 +53,82 @@ public class ProductServiceImpl implements ProductService {
         Artist artist = artistRepository.findById(req.artistId())
                 .orElseThrow(() -> new IllegalArgumentException("Artist not found: " + req.artistId()));
 
+        // Request객체 -> Domain객체
         Product product = toEntity(req, category, artist);
-        productRepository.saveAndFlush(product); // PK 즉시 발급 보장
+        productRepository.saveAndFlush(product); // PK 즉시 발급
+
+        // 롤백시 삭제할 파일 경로 추적
+        List<Path> uploadedPaths = new ArrayList<>();
 
         try {
-            // 메인 이미지
+            // ===== 메인 이미지 =====
             if (mainImage != null && !mainImage.isEmpty()) {
-                ProductImage mainImg = uploadManager.store(mainImage, product, productMainDir, ProductImage.Role.MAIN);
+                String mainDir = productMainDir + "/p" + product.getId(); // 예: C://upload/product/main/p123
+                String mainFilename = UploadManager.storeAndReturnName(mainImage, mainDir);
+
+                // 삭제 추적
+                uploadedPaths.add(Paths.get(mainDir).resolve(mainFilename));
+
+                // URL 구성:C://upload/product/main/p{productId}/{filename}
+                String mainUrl = "C://upload/product/main/p" + product.getId() + "/" + mainFilename;
+
+                ProductImage mainImg = new ProductImage();
+                mainImg.setProduct(product);
+                mainImg.setRole(ProductImage.Role.MAIN);
+                mainImg.setOriginalName(mainImage.getOriginalFilename());
+                mainImg.setMimeType(mainImage.getContentType());
+                mainImg.setSize(mainImage.getSize());
+                mainImg.setUrl(mainUrl);
+
                 productImageRepository.saveAndFlush(mainImg);
-                // (DB 기본값/ON UPDATE 전략이라면) entityManager.refresh(mainImg);
             }
 
-            // 상세 이미지
+            // ===== 상세 이미지들 =====
             if (detailImages != null && !detailImages.isEmpty()) {
+                String detailDir = productDetailDir + "/p" + product.getId(); // 예: C://upload/product/detail/p123
+
                 List<ProductImage> details = new ArrayList<>();
                 for (MultipartFile file : detailImages) {
                     if (file == null || file.isEmpty()) continue;
-                    ProductImage pi = uploadManager.store(file, product, productDetailDir, ProductImage.Role.DETAIL);
+
+                    String filename = UploadManager.storeAndReturnName(file, detailDir);
+
+                    // 삭제 추적
+                    uploadedPaths.add(Paths.get(detailDir).resolve(filename));
+
+                    // URL 구성:C://upload/product/main/p{productId}/{filename}s
+                    String url = "C://upload/product/main/p" + product.getId() + "/" + filename;
+
+                    ProductImage pi = new ProductImage();
+                    pi.setProduct(product);
+                    pi.setRole(ProductImage.Role.DETAIL);
+                    pi.setOriginalName(file.getOriginalFilename());
+                    pi.setMimeType(file.getContentType());
+                    pi.setSize(file.getSize());
+                    pi.setUrl(url);
+
                     details.add(pi);
                 }
                 if (!details.isEmpty()) {
                     productImageRepository.saveAllAndFlush(details);
-                    // (DB 기본값/ON UPDATE 전략이라면) details.forEach(entityManager::refresh);
                 }
             }
 
             return product.getId();
+
         } catch (IOException e) {
-            // TODO: 여기서 이미 디스크에 쓴 파일 경로를 추적해 삭제(롤백)하면 더 안전함
+            // 디스크 롤백
+            for (Path p : uploadedPaths) {
+                try {
+                    Files.deleteIfExists(p);
+                } catch (IOException ex) {
+                    log.warn("파일 삭제 실패: {}", p, ex);
+                }
+            }
             throw new RuntimeException("File save failed", e);
         }
     }
+
 
     @Override
     public void update(Product product) {
