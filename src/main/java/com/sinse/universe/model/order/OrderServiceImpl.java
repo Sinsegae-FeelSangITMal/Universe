@@ -1,6 +1,7 @@
 package com.sinse.universe.model.order;
 
 import com.sinse.universe.domain.Order;
+import com.sinse.universe.dto.response.OrderResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,40 +9,22 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    private final JpaOrderRepository jpaOrderRepository;
-    public OrderServiceImpl(JpaOrderRepository jpaOrderRepository) {
-        this.jpaOrderRepository = jpaOrderRepository;
+    private final OrderRepository orderRepository;
+    public OrderServiceImpl(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
     }
 
     @Override
-    public List<Order> selectAll() {
-        return jpaOrderRepository.findAll();
+    public List<OrderResponse> selectByPartnerId(int partnerId) {
+        return orderRepository.findOrdersByPartnerId(partnerId).stream()
+                .map(OrderResponse::from)
+                .toList();
     }
 
     @Override
-    public Order select(int orderId) {
-        return jpaOrderRepository.findById(orderId).orElse(null);
-    }
-
-    @Override
-    public void regist(Order order) {
-        jpaOrderRepository.save(order);
-    }
-
-    @Override
-    public void update(Order order) {
-        Order obj = select(order.getId());
-        if (obj != null)
-            jpaOrderRepository.save(obj);
-    }
-
-    @Override
-    public void delete(int orderId) {
-        jpaOrderRepository.deleteById(orderId);
-    }
-
-    @Override
-    public List<Order> selectByUserId(int userId) {
-        return jpaOrderRepository.findByUserId(userId);
+    public List<OrderResponse> selectByArtistId(int artistId) {
+        return orderRepository.findOrdersByArtistId(artistId).stream()
+                .map(OrderResponse::from)
+                .toList();
     }
 }

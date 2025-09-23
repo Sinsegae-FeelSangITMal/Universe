@@ -1,6 +1,5 @@
 package com.sinse.universe.domain;
 
-import com.sinse.universe.enums.UserRole;
 import com.sinse.universe.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,12 +22,6 @@ public class User {
     @Column(name = "UR_PWD")
     private String password;
 
-    @Column(name="UR_EMAIL", nullable=false, unique=true)
-    private String email;
-
-    @Column(name = "UR_PHONE")
-    private String phone;
-
     @Column(name = "UR_NAME")
     private String name;
 
@@ -36,10 +29,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @Column(name="UR_JOIN_DATE", updatable = false)
+    @Column(name="UR_JOIN_DATE")
     private LocalDateTime joinDate;
 
-    @Column(name = "UR_ROLE")
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+    //@ManyToOne(fetch = FetchType.LAZY)
+    //@JoinColumn(name = "RO_ID", nullable = false)
+    //private Role role;
 }

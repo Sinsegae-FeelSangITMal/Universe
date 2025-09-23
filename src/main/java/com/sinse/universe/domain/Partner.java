@@ -13,7 +13,7 @@ public class Partner {
     @Column(name = "PT_ID")
     private int id;
 
-    @Column(name = "PT_NM")
+    @Column(name = "PT_NAME")
     private String name;
 
     @Column(name = "PT_ADR")

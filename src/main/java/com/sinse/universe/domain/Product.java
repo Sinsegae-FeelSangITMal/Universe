@@ -1,5 +1,7 @@
 package com.sinse.universe.domain;
 
+import com.sinse.universe.enums.ProductStatus;
+import com.sinse.universe.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -30,6 +32,9 @@ public class Product {
     @Column(name = "PD_PRICE", nullable = false)
     private Integer price;
 
+    @Column(name = "PD_REGIST_DATE", nullable = false)
+    private LocalDateTime registDate;
+
     @Column(name = "PD_OPEN_DATE")
     private LocalDateTime openDate;
 
@@ -42,8 +47,9 @@ public class Product {
     @Column(name = "PD_LIMIT_PER_USER")
     private Integer limitPerUser = 0;
 
-    @Column(name = "PD_ACTIVE_YN")
-    private Boolean active = true;
+    @Column(name = "PD_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProductStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CT_ID")

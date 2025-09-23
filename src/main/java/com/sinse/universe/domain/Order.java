@@ -1,9 +1,12 @@
 package com.sinse.universe.domain;
 
+import com.sinse.universe.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="ORDERS")
@@ -18,8 +21,9 @@ public class Order {
     @Column(name = "OR_DATE", nullable = false, updatable = false)
     private LocalDateTime date;
 
-    @Column(name = "OR_STAT")
-    private String status;
+    @Column(name = "OR_STATUS")
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @Column(name = "OR_TOTAL_PRICE", nullable = false)
     private int totalPrice;
@@ -36,7 +40,11 @@ public class Order {
     @Column(name = "OR_REFUND_DATE")
     private LocalDateTime refundDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UR_ID", nullable = false)
     private User user;
+
+    // OrderItem 매핑하기 (부분환불/부분취소 같은 기능을 넣을 때만 orderitemrepository를 만들어서 개별 처리)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<OrderProduct> orderProducts =  new ArrayList<>();
 }
