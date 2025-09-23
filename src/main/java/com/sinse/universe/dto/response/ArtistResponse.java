@@ -3,7 +3,6 @@ package com.sinse.universe.dto.response;
 import com.sinse.universe.domain.Artist;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public record ArtistResponse(
         int id,
@@ -14,8 +13,8 @@ public record ArtistResponse(
         LocalDate debutDate,
         String insta,
         String youtube,
-        String partnerName,            // partner 엔티티 대신 이름만
-        List<MemberResponse> members   // 멤버 리스트
+        String partnerName
+        // , List<MemberResponse> members  // 필요할 때만 포함
 ) {
     public static ArtistResponse from(Artist artist) {
         return new ArtistResponse(
@@ -27,12 +26,8 @@ public record ArtistResponse(
                 artist.getDebutDate(),
                 artist.getInsta(),
                 artist.getYoutube(),
-                artist.getPartner() != null ? artist.getPartner().getName() : null,
-                artist.getMembers() != null
-                        ? artist.getMembers().stream()
-                        .map(MemberResponse::from)
-                        .toList()
-                        : List.of()
+                artist.getPartner() != null ? artist.getPartner().getName() : null
+                // , artist.getMembers() → 필요 없으니 제외
         );
     }
 }

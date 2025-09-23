@@ -22,11 +22,7 @@ public class ArtistServiceImpl implements ArtistService{
     public List<Artist> selectAll() {return artistRepository.findAll();}
 
     @Override
-//    public Artist select(int artistId) {return artistRepository.findById(artistId).orElse(null);}
-    public Artist select(int id) {
-        return artistRepository.findByIdWithMembers(id)  // JOIN FETCH 버전 사용
-                .orElseThrow(() -> new EntityNotFoundException("Artist not found"));
-    }
+    public Artist select(int artistId) {return artistRepository.findById(artistId).orElse(null);}
 
     @Override
     public void regist(Artist artist) {
@@ -63,10 +59,10 @@ public class ArtistServiceImpl implements ArtistService{
         artistRepository.deleteById(artistId);
     }
 
+    // Partner ID로 Artist 목록 조회
     @Override
     public List<Artist> findByPartnerId(int partnerId) {
         return artistRepository.findByPartnerId(partnerId);
     }
-
 
 }

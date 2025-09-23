@@ -30,10 +30,11 @@ public class PartnerController {
                 .map(PartnerResponse::from)
                 .toList();
     }
+
     // 1개 소속사 상세
     @GetMapping("/partners/{partnerId}")
-    public Partner getPartner(@PathVariable int partnerId) {
-        return partnerService.select(partnerId);
+    public PartnerResponse getPartner(@PathVariable int partnerId) {
+        return PartnerResponse.from(partnerService.select(partnerId));
     }
 
     // 소속사 등록
@@ -56,4 +57,5 @@ public class PartnerController {
         partnerService.delete(partnerId);
         return ResponseEntity.ok(Map.of("result", "소속사 삭제 성공"));
     }
+
 }

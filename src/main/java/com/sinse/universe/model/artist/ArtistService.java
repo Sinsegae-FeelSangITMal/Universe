@@ -11,6 +11,5 @@ public interface ArtistService {
     public void regist(Artist artist);
     public void update(Artist artist);
     public void delete(int artistId);
-    // 파트너 ID로 아티스트 조회
-    List<Artist> findByPartnerId(int partnerId);
+    public List<Artist> findByPartnerId(int partnerId);
 }

@@ -38,7 +38,7 @@ public class MemberController {
     // 멤버 상세 조회
     @GetMapping("/members/{memberId}")
     public Member getMember(@PathVariable int memberId) {
-        return memberService.select(memberId);
+        return memberService.findById(memberId);
     }
 
     // 멤버 등록
@@ -88,8 +88,6 @@ public class MemberController {
         memberService.update(member);
         return ResponseEntity.ok(Map.of("result", "멤버 수정 성공"));
     }
-
-
 
     // 멤버 삭제
     @DeleteMapping("/members/{memberId}")
