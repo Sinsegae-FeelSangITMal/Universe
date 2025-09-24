@@ -2,6 +2,7 @@ package com.sinse.universe.model.member;
 
 import com.sinse.universe.domain.Artist;
 import com.sinse.universe.domain.Member;
+import com.sinse.universe.dto.request.MemberRequest;
 import com.sinse.universe.model.artist.ArtistRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,20 +25,19 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void update(Member member) {
-        // memberRepository.save(member);
+    public void update(int memberId, MemberRequest member) {
 
         // 기존 멤버 조회
-        Member existing = memberRepository.findById(member.getId())
+        Member existing = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
-        // 변경 가능한 필드만 업데이트
-        existing.setName(member.getName());
-        existing.setImg(member.getImg());
+        // 변경 가능한 필드 업데이트
+        existing.setName(member.name());
+        existing.setImg(member.img());
 
-        // ✅ Artist는 기존 값 유지, 필요할 때만 변경
-        if (member.getArtist() != null && member.getArtist().getId() > 0) {
-            Artist artist = artistRepository.findById(member.getArtist().getId())
+        // ✅ artistId가 0보다 큰 경우만 변경
+        if (member.artistId() > 0) {
+            Artist artist = artistRepository.findById(member.artistId())
                     .orElseThrow(() -> new RuntimeException("Artist not found"));
             existing.setArtist(artist);
         }

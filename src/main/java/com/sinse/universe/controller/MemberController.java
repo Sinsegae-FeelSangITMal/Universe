@@ -75,17 +75,7 @@ public class MemberController {
             @PathVariable int memberId,
             @RequestBody MemberRequest request) {
 
-        Member member = memberService.findById(memberId);
-
-        member.setName(request.name());
-        member.setImg(request.img());
-
-        // 🚨 여기서 request.artistId()가 null/0 이면 예외 발생
-        Artist artist = artistRepository.findById(request.artistId())
-                .orElseThrow(() -> new RuntimeException("아티스트를 찾을 수 없습니다."));
-        member.setArtist(artist);
-
-        memberService.update(member);
+        memberService.update(memberId, request);
         return ResponseEntity.ok(Map.of("result", "멤버 수정 성공"));
     }
 

@@ -1,6 +1,7 @@
 package com.sinse.universe.model.member;
 
 import com.sinse.universe.domain.Member;
+import com.sinse.universe.dto.request.MemberRequest;
 
 import java.util.List;
 
@@ -9,7 +10,7 @@ public interface MemberService {
     void regist(Member member);
 
     // 멤버 수정
-    void update(Member member);
+    void update(int memberId, MemberRequest member);
 
     // 멤버 삭제
     void delete(int memberId);
