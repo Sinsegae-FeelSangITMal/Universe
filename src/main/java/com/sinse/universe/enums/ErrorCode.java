@@ -9,7 +9,7 @@ public enum ErrorCode {
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "이미 가입된 이메일입니다."),
     PASSWORD_CONFIRM_NOT_MATCH(HttpStatus.BAD_REQUEST, "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
     ROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "잘못된 권한명입니다."),
-    DATE_INVALID_RANGE(HttpStatus.BAD_REQUEST, "종료일은 시작일보다 나중이어야 합니다."),
+    DATE_INVALID_RANGE(HttpStatus.BAD_REQUEST, "종료일은 시작일보다 과거일 수 없습니다."),
     DATE_START_IN_FUTURE(HttpStatus.BAD_REQUEST, "시작읠은 현재 날짜보다 미래일 수 없습니다."),
     INVALID_SORT_PROPERTY(HttpStatus.BAD_REQUEST,"허용되지 않은 정렬 컬럼입니다."),
 

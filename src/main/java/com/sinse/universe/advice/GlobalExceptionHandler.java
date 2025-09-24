@@ -23,8 +23,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
-        log.error("CustomException 발생 - code: {}, message: {}", e.getErrorCode(), e.getMessage(), e);
-        return ApiResponse.error(e);
+        log.error(e.getMessage(), e);
+        return ApiResponse.error(e.getErrorCode());
     }
 
     /*
@@ -67,10 +67,7 @@ public class GlobalExceptionHandler {
                 )
                 .toList();
 
-        //return ApiResponse.error(new CustomException(ErrorCode.INVALID_INPUT), errors);
-        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("code", ErrorCode., "message", "잘못된 입력값입니다." "data",errors));
-
-        return null;
+        return ApiResponse.error(ErrorCode.INVALID_INPUT, errors);
     }
 
     /**
@@ -79,6 +76,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("Unhandled Exception 발생", e);
-        return ApiResponse.error(new CustomException(ErrorCode.UNHANDLED_EXCEPTION));
+        return ApiResponse.error(ErrorCode.UNHANDLED_EXCEPTION);
     }
 }

@@ -8,6 +8,7 @@ import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.enums.UserStatus;
 import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.role.RoleServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserServiceImpl {
 
@@ -53,16 +55,18 @@ public class UserServiceImpl {
 
     // 조회
     public Page<UserListForAdminResponse> getUesrListForAdmin(UserSearchRequest dto, Pageable pageable) {
-        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate today = LocalDate.now();
         LocalDate startDate = dto.getStartDate();
         LocalDate endDate = dto.getEndDate();
 
+        log.debug("오늘 날짜 {}", today);
+
         // 날짜 유효성 검사
         if( startDate != null && startDate.isAfter(today)) {
-            throw new CustomException(ErrorCode.INVALID_INPUT, "시작일은 오늘 날짜보다 미래일 수 없습니다.");
+            throw new CustomException(ErrorCode.DATE_START_IN_FUTURE);
         }
         if(endDate != null && endDate.isBefore(startDate)){
-            throw new CustomException(ErrorCode.INVALID_INPUT, "종료일은 시작일보다 빠를 수 없습니다.");
+            throw new CustomException(ErrorCode.DATE_INVALID_RANGE);
         }
 
         // DTO는 LocalDate 타입 -> repository 계층에 전달하기 전 LocalDateTime 타입으로 변환

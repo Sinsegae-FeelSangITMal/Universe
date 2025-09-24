@@ -48,21 +48,21 @@ public class ApiResponse<T> {
 
     // 실패응답
     // 사용: ApiResponse.error(ErrorCode ec, Object data)
-    public static <T> ResponseEntity<ApiResponse<T>> error(CustomException e, T data){
+    public static <T> ResponseEntity<ApiResponse<T>> error(ErrorCode errorCode, T data){
         return ResponseEntity
-                .status(e.getErrorCode().getHttpStatus())
+                .status(errorCode.getHttpStatus())
                 .body(ApiResponse.<T>builder()
                         .success(false)
-                        .message(e.getMessage())
-                        .code(e.getErrorCode().name())
+                        .message(errorCode.getDetail())
+                        .code(errorCode.name())
                         .data(data)
                         .build()
                 );
     }
 
     // 사용: ApiResponse.error(ErrorCode ec)
-    public static ResponseEntity<ApiResponse<Void>> error(CustomException e){
-        return error(e, null);
+    public static ResponseEntity<ApiResponse<Void>> error(ErrorCode errorCode){
+        return error(errorCode, null);
     }
 
 }

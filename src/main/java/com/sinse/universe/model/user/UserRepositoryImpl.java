@@ -50,7 +50,7 @@ public class UserRepositoryImpl implements CustomUserRepository{
         switch (property) {
             case "id" -> orderSpecifier = new OrderSpecifier<>(direction, user.id);
             case "loginId" -> orderSpecifier = new OrderSpecifier<>(direction, user.loginId);
-            default -> throw new CustomException(ErrorCode.INVALID_SORT_PROPERTY, " property=" + property);
+            default -> throw new CustomException(ErrorCode.INVALID_SORT_PROPERTY, "허용되지 않은 컬럼 property=" + property);
         }
 
         // 1단계: 조건 추가
