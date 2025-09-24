@@ -47,6 +47,24 @@ public class ApiResponse<T> {
         return success(message, null);
     }
 
+    // 성공응답 - 201 Created (리소스 생성 시)
+    public static <T> ResponseEntity<ApiResponse<T>> created(String message, T data) {
+        return ResponseEntity
+                .status(201) // HttpStatus.CREATED
+                .body(ApiResponse.<T>builder()
+                        .success(true)
+                        .message(message)
+                        .code("SUCCESS")
+                        .data(data)
+                        .build()
+                );
+    }
+
+    // 오버로드 - data 없는 경우
+    public static <T> ResponseEntity<ApiResponse<T>> created(String message) {
+        return created(message, null);
+    }
+
     // 실패응답
     // 사용: ApiResponse.error(ErrorCode ec, Object data)
     public static ResponseEntity<ApiResponse<Object>> error(ErrorCode errorCode, Object data){

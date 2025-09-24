@@ -37,13 +37,12 @@ public class UploadManager {
         return newFilename; // 파일명을 서비스단에 돌려줌
     }
 
-
     // 디렉토리 생성 메서드 정의
     // createDirectory("c://upload"), createDirectory("p23")
     public static Path createDirectory(String path) throws IOException {
         Path dir = Paths.get(path);
         Path savePath = Paths.get(path).toAbsolutePath().normalize();
-        if(!(Files.exists(dir) && Files.isDirectory(dir))){
+        if (!(Files.exists(dir) && Files.isDirectory(dir))) {
             Files.createDirectories(dir);
         } else {
             log.debug("{} 디렉토리가 이미 존재함 ", path);

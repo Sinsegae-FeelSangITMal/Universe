@@ -3,6 +3,7 @@ package com.sinse.universe.controller;
 import com.sinse.universe.domain.Product;
 import com.sinse.universe.dto.request.ProductRegistRequest;
 import com.sinse.universe.dto.response.ApiResponse;
+import com.sinse.universe.dto.response.ProductDetailResponse;
 import com.sinse.universe.dto.response.ProductResponse;
 import com.sinse.universe.model.product.ProductService;
 import jakarta.validation.Valid;
@@ -35,9 +36,9 @@ public class ProductController {
     }
 
     @GetMapping("/products/{productId}")
-    public ResponseEntity<ApiResponse<ProductResponse>> getProductDetail(@PathVariable Integer productId) {
-        ProductResponse dto = productService.getProductDetail(productId);
-        return ApiResponse.success("조회 성공", dto);
+    public ResponseEntity<ApiResponse<ProductDetailResponse>> getProductDetail(@PathVariable Integer productId) {
+        ProductDetailResponse pdr = productService.getProductDetail(productId);
+        return ApiResponse.success("조회 성공", pdr);
     }
 
     /**
@@ -71,20 +72,26 @@ public class ProductController {
             @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
             @RequestPart(value = "detailImages", required = false) List<MultipartFile> detailImages
     ) {
+        log.debug("상품 등록 요청 성공");
         if (detailImages == null) detailImages = List.of();
+        int id = productService.regist(productRegistRequest, mainImage, detailImages);
 
-        int createdId = productService.regist(productRegistRequest, mainImage, detailImages);
-        URI location = URI.create("/api/ent/products/" + createdId);
+        // Location을 쓸 계획이 없더라도 201은 유지
+        return ApiResponse.created("등록 성공", Map.of("id", id));
+    }
 
-        ApiResponse<Map<String, Object>> body = ApiResponse.<Map<String, Object>>builder()
-                .success(true)
-                .message("등록 성공")
-                .code("SUCCESS")
-                .data(Map.of("id", createdId))
-                .build();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(location);
-        return new ResponseEntity<>(body, headers, HttpStatus.CREATED);
+    @PutMapping(
+            value = "/products/{productId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updateProduct(
+            @PathVariable int productId,
+            @ModelAttribute @Valid ProductRegistRequest productRegistRequest,
+            @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
+            @RequestPart(value = "detailImages", required = false) List<MultipartFile> detailImages,
+            @RequestParam(value = "deleteDetailImageIds", required = false) List<Integer> deleteDetailImageIds
+    ) {
+        int id = productService.update(productId, productRegistRequest, mainImage, detailImages, deleteDetailImageIds);
+        return ApiResponse.success("수정 성공", Map.of("id", id)); // 200 OK
     }
 }

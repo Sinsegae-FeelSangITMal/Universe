@@ -3,11 +3,13 @@ package com.sinse.universe.advice;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.exception.CustomException;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,6 +69,14 @@ public class GlobalExceptionHandler {
                 .toList();
 
         return ApiResponse.error(ErrorCode.INVALID_INPUT, errors);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMaxUpload(MaxUploadSizeExceededException ex) {
+        log.debug("MaxUploadSizeExceededException 동작");
+        return ApiResponse.error(ErrorCode.FILE_TOO_LARGE, Map.of(
+                "hint", "파일이 너무 큽니다."
+        ));
     }
 
     /**
