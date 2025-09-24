@@ -26,9 +26,9 @@ public class MemberController {
         this.artistRepository = artistRepository;
     }
 
-    // 특정 아티스트의 모든 멤버 조회
-    @GetMapping("/artists/{artistId}/members")
-    public List<MemberResponse> getMembersByArtist(@PathVariable int artistId) {
+    // 특정 아티스트의 모든 멤버 조회 (쿼리 파라미터 방식)
+    @GetMapping(value = "/members", params = "artistId")
+    public List<MemberResponse> getMembersByArtist(@RequestParam int artistId) {
         return memberService.findByArtistId(artistId)
                 .stream()
                 .map(MemberResponse::from)
@@ -42,11 +42,6 @@ public class MemberController {
     }
 
     // 멤버 등록
-//    @PostMapping("/members")
-//    public ResponseEntity<?> addMember(@RequestBody Member member) {
-//        memberService.regist(member);
-//        return ResponseEntity.ok(Map.of("result", "멤버 등록 성공"));
-//    }
     @PostMapping("/members")
     public ResponseEntity<?> addMember(@RequestBody MemberRequest request) {
         Artist artist = artistRepository.findById(request.artistId())
@@ -61,15 +56,6 @@ public class MemberController {
         return ResponseEntity.ok(Map.of("result", "멤버 등록 성공"));
     }
 
-
-
-    // 멤버 수정
-//    @PutMapping("/members/{memberId}")
-//    public ResponseEntity<?> updateMember(@PathVariable int memberId, @RequestBody Member member) {
-//        member.setId(memberId); // 🔑 수정 시 ID 보정
-//        memberService.update(member);
-//        return ResponseEntity.ok(Map.of("result", "멤버 수정 성공"));
-//    }
     @PutMapping("/members/{memberId}")
     public ResponseEntity<?> updateMember(
             @PathVariable int memberId,

@@ -83,9 +83,9 @@ public class ArtistController {
         return ResponseEntity.ok(Map.of("result","아티스트 삭제 성공"));
     }
 
-    // 특정 소속사의 모든 아티스트 조회
-    @GetMapping("/partners/{partnerId}/artists")
-    public List<ArtistResponse> getMembersByArtist(@PathVariable int partnerId) {
+    // 특정 파트너의 아티스트 조회 (쿼리 파라미터 방식)
+    @GetMapping(value = "/artists", params = "partnerId")
+    public List<ArtistResponse> getArtistsByPartner(@RequestParam int partnerId) {
         return artistService.findByPartnerId(partnerId)
                 .stream()
                 .map(ArtistResponse::from)
