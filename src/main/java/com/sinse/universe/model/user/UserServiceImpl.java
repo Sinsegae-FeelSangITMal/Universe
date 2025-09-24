@@ -8,6 +8,7 @@ import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.role.RoleServiceImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl {
@@ -28,6 +29,7 @@ public class UserServiceImpl {
         }
     }
 
+    @Transactional
     public User createUser(UserJoinRequest form) {
         User user = User.builder()
                 .loginId(form.email())

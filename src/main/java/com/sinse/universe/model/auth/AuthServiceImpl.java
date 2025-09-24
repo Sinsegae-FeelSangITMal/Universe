@@ -10,6 +10,7 @@ import com.sinse.universe.util.CodeGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 
@@ -58,6 +59,7 @@ public class AuthServiceImpl {
         log.info("이메일 인증 코드 검증 성공 verified={}", email);
     }
 
+    @Transactional
     public void join(UserJoinRequest form) {
         // 이메일 중복, 인증, 비밀번호 일치 검증
         userService.checkDuplicateEmail(form.email());
