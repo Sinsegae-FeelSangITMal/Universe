@@ -2,6 +2,7 @@ package com.sinse.universe.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.exception.CustomException;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
@@ -47,21 +48,22 @@ public class ApiResponse<T> {
 
     // 실패응답
     // 사용: ApiResponse.error(ErrorCode ec, Object data)
-    public static <T> ResponseEntity<ApiResponse<T>> error(ErrorCode errorCode, T data){
+    public static <T> ResponseEntity<ApiResponse<T>> error(CustomException e, T data){
         return ResponseEntity
-                .status(errorCode.getHttpStatus())
+                .status(e.getErrorCode().getHttpStatus())
                 .body(ApiResponse.<T>builder()
                         .success(false)
-                        .message(errorCode.getDetail())
-                        .code(errorCode.name())
+                        .message(e.getMessage())
+                        .code(e.getErrorCode().name())
                         .data(data)
                         .build()
                 );
     }
 
     // 사용: ApiResponse.error(ErrorCode ec)
-    public static ResponseEntity<ApiResponse<Void>> error(ErrorCode errorCode){
-        return error(errorCode, null);
+    public static ResponseEntity<ApiResponse<Void>> error(CustomException e){
+        return error(e, null);
     }
+
 }
 

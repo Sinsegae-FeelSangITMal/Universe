@@ -4,6 +4,7 @@ import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,8 +23,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
-        log.error("CustomException 발생 - code: {}, message: {}", e.getErrorCode(), e.getErrorCode().getDetail(), e);
-        return ApiResponse.error(e.getErrorCode());
+        log.error("CustomException 발생 - code: {}, message: {}", e.getErrorCode(), e.getMessage(), e);
+        return ApiResponse.error(e);
     }
 
     /*
@@ -53,20 +54,23 @@ public class GlobalExceptionHandler {
 
         log.error("Validation failed - {} errors", e.getBindingResult().getErrorCount(), e);
 
-        List<Map<String, String>> errors = e.getBindingResult()
+        List<Map<String, Object>> errors = e.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(error -> {
-                        Map<String, String> map = new LinkedHashMap<>();   // 순서가 보장되는 LinkedHashMap 사용
+                        Map<String, Object> map = new LinkedHashMap<>();   // 순서가 보장되는 LinkedHashMap 사용
                         map.put("field", error.getField());
                         map.put("message", error.getDefaultMessage());
-                        map.put("rejected", error.getRejectedValue().toString());
+                        map.put("rejected", error.getRejectedValue());
                         return map;
                     }
                 )
                 .toList();
 
-        return ApiResponse.error(ErrorCode.INVALID_INPUT, errors);
+        //return ApiResponse.error(new CustomException(ErrorCode.INVALID_INPUT), errors);
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("code", ErrorCode., "message", "잘못된 입력값입니다." "data",errors));
+
+        return null;
     }
 
     /**
@@ -75,6 +79,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("Unhandled Exception 발생", e);
-        return ApiResponse.error(ErrorCode.UNHANDLED_EXCEPTION);
+        return ApiResponse.error(new CustomException(ErrorCode.UNHANDLED_EXCEPTION));
     }
 }
