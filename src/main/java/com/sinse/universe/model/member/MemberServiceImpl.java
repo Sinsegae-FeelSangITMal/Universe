@@ -5,6 +5,7 @@ import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.util.UploadManager;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,18 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final ArtistRepository artistRepository;
 
+    @Value("${upload.base-dir}")
+    private String baseDir;
+
+    @Value("${upload.url-prefix}")
+    private String urlPrefix;
+
+    @Value("${upload.member-dir}")
+    private String memberBaseDir;
+
+    @Value("${upload.member-url}")
+    private String memberUrl;
+
     public MemberServiceImpl(MemberRepository memberRepository, ArtistRepository artistRepository) {
         this.memberRepository = memberRepository;
         this.artistRepository = artistRepository;
@@ -35,11 +48,11 @@ public class MemberServiceImpl implements MemberService {
 
         if (img != null && !img.isEmpty()) {
             // /upload/member/a{artistId}/m{memberId}
-            String dir = "C:/upload/member/a" + member.getArtist().getId() + "/m" + member.getId();
+            String dir = memberBaseDir + "/a" + member.getArtist().getId() + "/m" + member.getId();
             String filename = UploadManager.storeAndReturnName(img, dir);
 
             // DB에는 웹 접근 가능한 URL 저장
-            String url = "/uploads/member/a" + member.getArtist().getId() + "/m" + member.getId() + "/" + filename;
+            String url = memberUrl + "/a" + member.getArtist().getId() + "/m" + member.getId() + "/" + filename;
             member.setImg(url);
         }
 
@@ -58,8 +71,10 @@ public class MemberServiceImpl implements MemberService {
         existing.setArtist(member.getArtist());
 
         // 1. 이미지 삭제 요청이 있을 경우
+        // 1. 이미지 삭제 요청이 있을 경우
         if (deleteImg && existing.getImg() != null) {
-            Path oldPath = Paths.get("C:/upload").resolve(existing.getImg().replaceFirst("^/uploads/", ""));
+            Path oldPath = Paths.get(baseDir).resolve(existing.getImg().replaceFirst("^" + urlPrefix + "/", ""));
+
             try {
                 Files.deleteIfExists(oldPath);
             } catch (IOException e) {
@@ -72,13 +87,18 @@ public class MemberServiceImpl implements MemberService {
         if (img != null && !img.isEmpty()) {
             // 기존 파일이 있으면 정리 (중복 방지)
             if (existing.getImg() != null) {
-                Path oldPath = Paths.get("C:/upload").resolve(existing.getImg().replaceFirst("^/uploads/", ""));
+                Path oldPath = Paths.get(baseDir).resolve(existing.getImg().replaceFirst("^" + urlPrefix + "/", ""));
+
                 Files.deleteIfExists(oldPath);
             }
 
-            String dir = "C:/upload/member/a" + existing.getArtist().getId() + "/m" + existing.getId();
+            String dir = memberBaseDir + "/a" + member.getArtist().getId() + "/m" + member.getId();
             String filename = UploadManager.storeAndReturnName(img, dir);
-            existing.setImg("/uploads/member/a" + existing.getArtist().getId() + "/m" + existing.getId() + "/" + filename);
+
+            // DB에는 URL 경로 저장
+            String url = memberUrl + "/a" + member.getArtist().getId() + "/m" + member.getId() + "/" + filename;
+            member.setImg(url);
+
         }
 
         // 3. deleteImg=false AND img=null → 아무 일도 하지 않음

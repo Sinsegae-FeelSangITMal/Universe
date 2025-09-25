@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api")
 public class PartnerController {
 
     private final PartnerService partnerService;
@@ -23,7 +24,7 @@ public class PartnerController {
     }
 
     // 전체 소속사
-    @GetMapping("/partners")
+    @GetMapping("/ent/partners")
     public List<PartnerResponse> getArtists() {
         return partnerRepository.findAll()
                 .stream()
@@ -32,27 +33,27 @@ public class PartnerController {
     }
 
     // 1개 소속사 상세
-    @GetMapping("/partners/{partnerId}")
+    @GetMapping("/ent/partners/{partnerId}")
     public PartnerResponse getPartner(@PathVariable int partnerId) {
         return PartnerResponse.from(partnerService.select(partnerId));
     }
 
     // 소속사 등록
-    @PostMapping("/partners")
+    @PostMapping("/ent/partners")
     public ResponseEntity<?> addPartner(@RequestBody Partner partner) {
         partnerService.regist(partner);
         return ResponseEntity.ok(Map.of("result", "소속사 등록 성공"));
     }
 
     // 소속사 수정
-    @PutMapping("/partners/{partnerId}")
+    @PutMapping("/ent/partners/{partnerId}")
     public ResponseEntity<?> updatePartner(@RequestBody Partner partner, @PathVariable int partnerId) {
         partnerService.update(partner);
         return ResponseEntity.ok(Map.of("result", "소속사 수정 성공"));
     }
 
     // 소속사 삭제
-    @DeleteMapping("/partners/{partnerId}")
+    @DeleteMapping("/ent/partners/{partnerId}")
     public ResponseEntity<?> deletePartner(@PathVariable int partnerId) {
         partnerService.delete(partnerId);
         return ResponseEntity.ok(Map.of("result", "소속사 삭제 성공"));

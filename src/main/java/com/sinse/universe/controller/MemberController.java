@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api")
 public class MemberController {
 
     private final MemberService memberService;
@@ -29,7 +30,7 @@ public class MemberController {
     }
 
     // 특정 아티스트의 모든 멤버 조회 (쿼리 파라미터 방식)
-    @GetMapping(value = "/members", params = "artistId")
+    @GetMapping(value = "/ent/members", params = "artistId")
     public List<MemberResponse> getMembersByArtist(@RequestParam int artistId) {
         return memberService.findByArtistId(artistId)
                 .stream()
@@ -38,14 +39,14 @@ public class MemberController {
     }
 
     // 멤버 상세 조회
-    @GetMapping("/members/{memberId}")
-    public Member getMember(@PathVariable int memberId) {
-        return memberService.findById(memberId);
+    @GetMapping("/ent/members/{memberId}")
+    public MemberResponse getMember(@PathVariable int memberId) {
+        Member member = memberService.findById(memberId);
+        return MemberResponse.from(member);
     }
 
-
     // 멤버 등록
-    @PostMapping(value = "/members", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/ent/members", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addMember(@ModelAttribute MemberRequest request) throws IOException {
 
         Artist artist = artistRepository.findById(request.artistId())
@@ -65,7 +66,7 @@ public class MemberController {
     }
 
     // 멤버 수정
-    @PutMapping(value = "/members/{memberId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/ent/members/{memberId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateMember(
             @PathVariable int memberId,
             @ModelAttribute MemberRequest request) throws IOException {
@@ -81,18 +82,15 @@ public class MemberController {
             member.setArtist(artist);
         }
 
-        // ✅ 서비스 호출 시 img와 삭제 여부도 같이 넘김
-        memberService.update(
-                member,
-                request.img(),
-                Boolean.TRUE.equals(request.deleteImg())
+        // 서비스 호출 시 img와 삭제 여부도 같이 넘김
+        memberService.update(member, request.img(), Boolean.TRUE.equals(request.deleteImg())
         );
 
         return ResponseEntity.ok(Map.of("result", "멤버 수정 성공"));
     }
 
     // 멤버 삭제
-    @DeleteMapping("/members/{memberId}")
+    @DeleteMapping("/ent/members/{memberId}")
     public ResponseEntity<?> deleteMember(@PathVariable int memberId) {
         memberService.delete(memberId);
         return ResponseEntity.ok(Map.of("result", "멤버 삭제 성공"));

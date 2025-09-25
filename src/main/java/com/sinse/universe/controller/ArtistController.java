@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api")
 public class ArtistController {
 
     private final ArtistService artistService;
@@ -30,7 +31,7 @@ public class ArtistController {
     }
 
     // 전체 아티스트 조회
-    @GetMapping("/artists")
+    @GetMapping("/ent/artists")
     public List<ArtistResponse> getArtists() {
         return artistRepository.findAll()
                 .stream()
@@ -39,14 +40,14 @@ public class ArtistController {
     }
 
     // 상세 아티스트 조회
-    @GetMapping("/artists/{artistId}")
+    @GetMapping("/ent/artists/{artistId}")
     public ArtistResponse getArtist(@PathVariable int artistId){
         Artist artist = artistService.select(artistId);
         return ArtistResponse.from(artist);
     }
 
     // 아티스트 등록
-    @PostMapping("/artists")
+    @PostMapping("/ent/artists")
     public ResponseEntity<?> addArtist(@RequestBody ArtistRequest request) {
         Partner partner = partnerRepository.findById(request.partnerId())
                 .orElseThrow(() -> new RuntimeException("Partner not found"));
@@ -56,13 +57,13 @@ public class ArtistController {
         artist.setDescription(request.description());
         artist.setPartner(partner);
 
-        artistRepository.save(artist);
+        artistService.regist(artist);
 
         return ResponseEntity.ok(Map.of("result","아티스트 등록 성공"));
     }
 
     // 아티스트 수정
-    @PutMapping(value = "/artists/{artistId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/ent/artists/{artistId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateArtist(
             @PathVariable int artistId,
             @ModelAttribute ArtistRequest request,
@@ -87,7 +88,7 @@ public class ArtistController {
 
 
     // 아티스트 삭제
-    @DeleteMapping("/artists/{artistId}")
+    @DeleteMapping("/ent/artists/{artistId}")
     public ResponseEntity<?> deleteArtist(@PathVariable int artistId) {
         artistService.delete(artistId);
 
@@ -95,7 +96,7 @@ public class ArtistController {
     }
 
     // 특정 파트너의 아티스트 조회 (쿼리 파라미터 방식)
-    @GetMapping(value = "/artists", params = "partnerId")
+    @GetMapping(value = "/ent/artists", params = "partnerId")
     public List<ArtistResponse> getArtistsByPartner(@RequestParam int partnerId) {
         return artistService.findByPartnerId(partnerId)
                 .stream()
