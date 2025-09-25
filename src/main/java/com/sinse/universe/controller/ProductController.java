@@ -49,7 +49,6 @@ public class ProductController {
     @GetMapping("/products")
     public ResponseEntity<ApiResponse<Page<ProductResponse>>> getProducts(
             @RequestParam(required = false) Integer artistId,
-            // 기본 정렬을 지정하고 싶다면 @PageableDefault 사용
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
