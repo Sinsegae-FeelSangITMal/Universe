@@ -26,7 +26,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/ent")
+@RequestMapping("/api")
 public class ProductController {
 
     private final ProductService productService;
@@ -35,7 +35,7 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("/products/{productId}")
+    @GetMapping("/ent/products/{productId}")
     public ResponseEntity<ApiResponse<ProductDetailResponse>> getProductDetail(@PathVariable Integer productId) {
         ProductDetailResponse pdr = productService.getProductDetail(productId);
         log.debug(pdr.toString());
@@ -48,7 +48,7 @@ public class ProductController {
      * 예: GET  /products?page=0&size=20&sort=id,desc
      * 예: GET /products?artistId=3&page=0&size=10
      */
-    @GetMapping("/products")
+    @GetMapping("/ent/products")
     public ResponseEntity<ApiResponse<Page<ProductResponse>>> getProducts(
             @RequestParam(required = false) Integer artistId,
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
@@ -67,7 +67,7 @@ public class ProductController {
         return ApiResponse.success(("ProductDtoPage 반환 성공"), dtoPage);
     }
 
-    @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/ent/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Map<String, Object>>> registerProduct(
             @ModelAttribute @Valid ProductRegistRequest productRegistRequest,
             @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
@@ -82,7 +82,7 @@ public class ProductController {
     }
 
     @PutMapping(
-            value = "/products/{productId}",
+            value = "/ent/products/{productId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<ApiResponse<Map<String, Object>>> updateProduct(

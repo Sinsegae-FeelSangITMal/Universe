@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/ent")
+@RequestMapping("/api")
 public class ArtistController {
 
     private ArtistService artistService;
@@ -22,7 +22,7 @@ public class ArtistController {
         this.artistService = artistService;
     }
 
-    @GetMapping("/artists/{partnerId}")
+    @GetMapping("/ent/artists/{partnerId}")
     public ResponseEntity<List<Map<String, Object>>> findAllArtistsByPartner(@PathVariable Integer partnerId) {
         return ResponseEntity.ok(artistService.findAllArtistNameAndIdByPartner(partnerId));
     }

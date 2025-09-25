@@ -11,7 +11,7 @@ public class Partner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="PT_ID")
-    private  Integer id;
+    private int id;
 
     @Column(name="PT_NM")
     private String name;

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ent")
+@RequestMapping("/api")
 public class CategoryController {
 
     private CategoryService categoryService;
@@ -23,7 +23,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/categories")
+    @GetMapping("/ent/categories")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> findAll() {
         List<Category> categories = categoryService.findAll(); // List<Category>
         List<CategoryResponse> dtoList = categories.stream()
