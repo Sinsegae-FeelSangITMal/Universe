@@ -11,10 +11,13 @@ public record ProductDetailResponse(
         String detail,
         String salesOpenAt,
         Boolean fanLimited,
+        Product.ProductStatus productStatus,
         Integer initialStock,
         Integer purchaseLimit,
         Integer artistId,
+        String artistName,
         Integer categoryId,
+        String categoryName,
         String mainImageUrl,            // 대표 이미지
         List<ImageDto> detailImages     // 상세 이미지들
 ) {
@@ -26,10 +29,13 @@ public record ProductDetailResponse(
                 p.getDescription(),
                 String.valueOf(p.getOpenDate()), // 타입이 String이 아니어도 안전
                 p.getFanOnly(),
+                p.getStatus(),
                 p.getStockQuantity(),
                 p.getLimitPerUser(),
                 p.getArtist() != null ? p.getArtist().getId() : null,
+                p.getArtist() != null ? p.getArtist().getName() : null,
                 p.getCategory() != null ? p.getCategory().getId() : null,
+                p.getCategory() != null ? p.getCategory().getName() : null,
                 null,
                 List.of()
         );
@@ -43,10 +49,13 @@ public record ProductDetailResponse(
                 p.getDescription(),
                 String.valueOf(p.getOpenDate()), // 타입이 String이 아니어도 안전
                 p.getFanOnly(),
+                p.getStatus(),
                 p.getStockQuantity(),
                 p.getLimitPerUser(),
                 p.getArtist() != null ? p.getArtist().getId() : null,
+                p.getArtist() != null ? p.getArtist().getName() : null,
                 p.getCategory() != null ? p.getCategory().getId() : null,
+                p.getCategory() != null ? p.getCategory().getName() : null,
                 mainImageUrl,
                 detailImages
         );

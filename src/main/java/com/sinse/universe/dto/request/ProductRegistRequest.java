@@ -1,5 +1,6 @@
 package com.sinse.universe.dto.request;
 
+import com.sinse.universe.domain.Product;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
@@ -27,13 +28,13 @@ public record ProductRegistRequest(
 
         Boolean promotion,
 
+        Product.ProductStatus  productStatus,
+
         @NotNull
         Integer categoryId,
 
         @NotNull
-        Integer artistId,
-
-        Integer subcategoryId
+        Integer artistId
 ) {
     public ProductRegistRequest {
         if (fanLimited == null) fanLimited = false;

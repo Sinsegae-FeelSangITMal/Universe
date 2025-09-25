@@ -352,7 +352,7 @@ public class ProductServiceImpl implements ProductService {
         p.setFanOnly(r.fanLimited());
         p.setStockQuantity(r.initialStock());
         p.setLimitPerUser(r.purchaseLimit());
-        p.setStatus(Product.ProductStatus.active);
+        p.setStatus(r.productStatus());
         p.setCategory(c);
         p.setArtist(a);
         return p;

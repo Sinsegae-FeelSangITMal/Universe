@@ -38,6 +38,8 @@ public class ProductController {
     @GetMapping("/products/{productId}")
     public ResponseEntity<ApiResponse<ProductDetailResponse>> getProductDetail(@PathVariable Integer productId) {
         ProductDetailResponse pdr = productService.getProductDetail(productId);
+        log.debug(pdr.toString());
+
         return ApiResponse.success("조회 성공", pdr);
     }
 
@@ -71,7 +73,7 @@ public class ProductController {
             @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
             @RequestPart(value = "detailImages", required = false) List<MultipartFile> detailImages
     ) {
-        log.debug("상품 등록 요청 성공");
+        log.debug(productRegistRequest.toString());
         if (detailImages == null) detailImages = List.of();
         int id = productService.regist(productRegistRequest, mainImage, detailImages);
 
