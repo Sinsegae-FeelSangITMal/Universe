@@ -1,5 +1,6 @@
 package com.sinse.universe.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -34,6 +35,7 @@ public class Artist {
     @Column(name = "AR_LOGO_IMG")
     private String logoImg;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "AR_DEBUT_DATE")
     private LocalDate debutDate;
 
