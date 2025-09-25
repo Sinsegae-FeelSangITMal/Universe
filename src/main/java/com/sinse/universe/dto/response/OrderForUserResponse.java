@@ -1,34 +1,40 @@
 package com.sinse.universe.dto.response;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sinse.universe.domain.Order;
-import com.sinse.universe.domain.OrderProduct;
-import com.sinse.universe.domain.Product;
+import com.sinse.universe.domain.User;
 import com.sinse.universe.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public record OrderResponse(
+public record OrderForUserResponse(
         String no,
         String date,
         OrderStatus status,
         Integer totalPrice,
+        String payment,
+        String address,
+        String receiver,
+        String phone,
         String cancelDate,
         String refundDate,
-        String userName,
+        UserResponse user,
         List<OrderProductResponse> orderProducts
         ) {
-    public static OrderResponse from(Order o) {
-        return new OrderResponse(
+    public static OrderForUserResponse from(Order o) {
+        return new OrderForUserResponse(
                 o.getNo(),
                 formatDate(o.getDate()),
                 o.getStatus(),
                 o.getTotalPrice(),
+                o.getPayment(),
+                o.getAddress(),
+                o.getReceiver(),
+                o.getPhone(),
                 formatDate(o.getCancelDate()),
                 formatDate(o.getRefundDate()),
-                o.getUser().getName(),
+                UserResponse.from(o.getUser()),
                 o.getOrderProducts().stream()
                     .map(OrderProductResponse::from)
                     .toList()

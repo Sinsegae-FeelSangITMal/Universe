@@ -19,7 +19,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             "JOIN FETCH a.partner pt " +
             "WHERE       a.id = :artistId " +
             "ORDER BY   o.no ASC")
-    List<Order> findOrdersByArtistId(@Param("artistId") Integer artistId);
+    List<Order> findByArtistId(@Param("artistId") Integer artistId);
 
     // 특정 소속사의 주문 목록만 가져오기
     @Query("SELECT DISTINCT o       FROM Order o " +
@@ -29,5 +29,5 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
                 "JOIN FETCH a.partner pt " +
                 "WHERE       pt.id = :partnerId " +
                 "ORDER BY   o.no ASC")
-    List<Order> findOrdersByPartnerId(@Param("partnerId") Integer partnerId);
+    List<Order> findByPartnerId(@Param("partnerId") Integer partnerId);
 }

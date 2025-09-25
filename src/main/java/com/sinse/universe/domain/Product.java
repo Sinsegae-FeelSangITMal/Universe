@@ -23,12 +23,6 @@ public class Product {
     @Column(name = "PD_DESC")
     private String description;
 
-    @Column(name = "PD_MAIN_IMG")
-    private String mainImage;
-
-    @Column(name = "PD_DETAIL_IMG")
-    private String detailImage;
-
     @Column(name = "PD_PRICE", nullable = false)
     private Integer price;
 

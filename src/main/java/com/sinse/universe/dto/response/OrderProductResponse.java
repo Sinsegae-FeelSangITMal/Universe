@@ -7,12 +7,14 @@ import java.time.LocalDateTime;
 
 public record OrderProductResponse(
         Integer qty,
-        String name
+        String name,
+        String artistName
         ) {
     public static OrderProductResponse from(OrderProduct op) {
         return new OrderProductResponse(
                 op.getId(),
-                op.getProduct().getName()
+                op.getProduct().getName(),
+                op.getProduct().getArtist().getName()
         );
     }
 }
