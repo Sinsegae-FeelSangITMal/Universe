@@ -7,9 +7,11 @@ import com.sinse.universe.dto.response.MemberResponse;
 import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.model.member.MemberRepository;
 import com.sinse.universe.model.member.MemberService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -41,27 +43,51 @@ public class MemberController {
         return memberService.findById(memberId);
     }
 
+
     // 멤버 등록
-    @PostMapping("/members")
-    public ResponseEntity<?> addMember(@RequestBody MemberRequest request) {
+    @PostMapping(value = "/members", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addMember(@ModelAttribute MemberRequest request) throws IOException {
+
         Artist artist = artistRepository.findById(request.artistId())
                 .orElseThrow(() -> new RuntimeException("아티스트를 찾을 수 없습니다."));
 
         Member member = new Member();
         member.setName(request.name());
-        member.setImg(request.img());
-        member.setArtist(artist); // ✅ 외래키 세팅
+        member.setArtist(artist);
 
-        memberService.regist(member);
-        return ResponseEntity.ok(Map.of("result", "멤버 등록 성공"));
+        // 서비스 호출 시 DTO 안의 img를 넘김
+        memberService.regist(member, request.img());
+
+        return ResponseEntity.ok(Map.of(
+                "result", "멤버 등록 성공",
+                "id", member.getId()
+        ));
     }
 
-    @PutMapping("/members/{memberId}")
+    // 멤버 수정
+    @PutMapping(value = "/members/{memberId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateMember(
             @PathVariable int memberId,
-            @RequestBody MemberRequest request) {
+            @ModelAttribute MemberRequest request) throws IOException {
 
-        memberService.update(memberId, request);
+        // 기존 데이터 조회
+        Member member = memberService.findById(memberId);
+
+        // 기본 정보 업데이트
+        member.setName(request.name());
+        if (request.artistId() > 0) {
+            Artist artist = artistRepository.findById(request.artistId())
+                    .orElseThrow(() -> new RuntimeException("Artist not found"));
+            member.setArtist(artist);
+        }
+
+        // ✅ 서비스 호출 시 img와 삭제 여부도 같이 넘김
+        memberService.update(
+                member,
+                request.img(),
+                Boolean.TRUE.equals(request.deleteImg())
+        );
+
         return ResponseEntity.ok(Map.of("result", "멤버 수정 성공"));
     }
 

@@ -7,9 +7,12 @@ import com.sinse.universe.dto.response.ArtistResponse;
 import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.model.artist.ArtistService;
 import com.sinse.universe.model.partner.PartnerRepository;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -59,21 +62,29 @@ public class ArtistController {
     }
 
     // 아티스트 수정
-    @PutMapping("/artists/{artistId}")
-    public ResponseEntity<?> updateArtist(@RequestBody ArtistRequest request, @PathVariable int artistId) {
-        Artist artist = artistService.select(artistId); // 기존 데이터 조회
+    @PutMapping(value = "/artists/{artistId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateArtist(
+            @PathVariable int artistId,
+            @ModelAttribute ArtistRequest request,
+            @RequestPart(required = false) MultipartFile mainImage,
+            @RequestPart(required = false) MultipartFile logoImage) throws IOException {
 
-        // 기본 정보 업데이트
+        Artist artist = artistService.select(artistId);
+
         artist.setName(request.name());
         artist.setDescription(request.description());
-        artist.setDebutDate(request.debutDate());  // LocalDate or String → DTO에 맞게
+        artist.setDebutDate(request.debutDate());
         artist.setInsta(request.insta());
         artist.setYoutube(request.youtube());
 
-        artistService.update(artist);
+        // ✅ 삭제 플래그도 함께 전달
+        artistService.update(artist, mainImage, logoImage,
+                Boolean.TRUE.equals(request.deleteMainImage()),
+                Boolean.TRUE.equals(request.deleteLogoImage()));
 
         return ResponseEntity.ok(Map.of("result", "아티스트 수정 성공"));
     }
+
 
     // 아티스트 삭제
     @DeleteMapping("/artists/{artistId}")

@@ -1,13 +1,20 @@
 package com.sinse.universe.model.member;
 
-import com.sinse.universe.domain.Artist;
 import com.sinse.universe.domain.Member;
-import com.sinse.universe.dto.request.MemberRequest;
 import com.sinse.universe.model.artist.ArtistRepository;
+import com.sinse.universe.util.UploadManager;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
+@Slf4j
 @Service
 public class MemberServiceImpl implements MemberService {
 
@@ -19,32 +26,68 @@ public class MemberServiceImpl implements MemberService {
         this.artistRepository = artistRepository;
     }
 
+    // 멤버 등록
     @Override
-    public void regist(Member member) {
+    @Transactional
+    public void regist(Member member, MultipartFile img) throws IOException {
+        // 먼저 member 저장 (PK 생성용)
+        memberRepository.saveAndFlush(member);
+
+        if (img != null && !img.isEmpty()) {
+            // /upload/member/a{artistId}/m{memberId}
+            String dir = "C:/upload/member/a" + member.getArtist().getId() + "/m" + member.getId();
+            String filename = UploadManager.storeAndReturnName(img, dir);
+
+            // DB에는 웹 접근 가능한 URL 저장
+            String url = "/uploads/member/a" + member.getArtist().getId() + "/m" + member.getId() + "/" + filename;
+            member.setImg(url);
+        }
+
         memberRepository.save(member);
     }
 
+    // 멤버 수정
     @Override
-    public void update(int memberId, MemberRequest member) {
-
-        // 기존 멤버 조회
-        Member existing = memberRepository.findById(memberId)
+    @Transactional
+    public void update(Member member, MultipartFile img, boolean deleteImg) throws IOException {
+        Member existing = memberRepository.findById(member.getId())
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
-        // 변경 가능한 필드 업데이트
-        existing.setName(member.name());
-        existing.setImg(member.img());
+        // 기본 정보 수정
+        existing.setName(member.getName());
+        existing.setArtist(member.getArtist());
 
-        // ✅ artistId가 0보다 큰 경우만 변경
-        if (member.artistId() > 0) {
-            Artist artist = artistRepository.findById(member.artistId())
-                    .orElseThrow(() -> new RuntimeException("Artist not found"));
-            existing.setArtist(artist);
+        // 1. 이미지 삭제 요청이 있을 경우
+        if (deleteImg && existing.getImg() != null) {
+            Path oldPath = Paths.get("C:/upload").resolve(existing.getImg().replaceFirst("^/uploads/", ""));
+            try {
+                Files.deleteIfExists(oldPath);
+            } catch (IOException e) {
+                log.warn("기존 멤버 이미지 삭제 실패: {}", oldPath, e);
+            }
+            existing.setImg(null); // DB에서도 제거
         }
+
+        // 2. 새 이미지가 업로드된 경우
+        if (img != null && !img.isEmpty()) {
+            // 기존 파일이 있으면 정리 (중복 방지)
+            if (existing.getImg() != null) {
+                Path oldPath = Paths.get("C:/upload").resolve(existing.getImg().replaceFirst("^/uploads/", ""));
+                Files.deleteIfExists(oldPath);
+            }
+
+            String dir = "C:/upload/member/a" + existing.getArtist().getId() + "/m" + existing.getId();
+            String filename = UploadManager.storeAndReturnName(img, dir);
+            existing.setImg("/uploads/member/a" + existing.getArtist().getId() + "/m" + existing.getId() + "/" + filename);
+        }
+
+        // 3. deleteImg=false AND img=null → 아무 일도 하지 않음
+        // 기존 이미지는 그대로 유지
 
         memberRepository.save(existing);
     }
 
+    // 멤버 삭제
     @Override
     public void delete(int memberId) {
         memberRepository.deleteById(memberId);

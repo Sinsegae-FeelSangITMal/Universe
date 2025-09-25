@@ -2,18 +2,21 @@ package com.sinse.universe.model.member;
 
 import com.sinse.universe.domain.Member;
 import com.sinse.universe.dto.request.MemberRequest;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface MemberService {
+
     // 멤버 등록
-    void regist(Member member);
+    public void regist(Member member, MultipartFile img) throws IOException;
 
     // 멤버 수정
-    void update(int memberId, MemberRequest member);
+    public void update(Member member, MultipartFile img, boolean deleteImg) throws IOException;
 
     // 멤버 삭제
-    void delete(int memberId);
+    public void delete(int memberId);
 
     // 멤버 단건 조회 (수정/삭제 시 사용)
     public Member findById(int memberId) ;
