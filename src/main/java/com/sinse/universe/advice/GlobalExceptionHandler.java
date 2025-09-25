@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
-        log.error("CustomException 발생 - code: {}, message: {}", e.getErrorCode(), e.getErrorCode().getDetail(), e);
+        log.error("CustomException 발생 - code: {}, message: {}", e.getErrorCode(), e.getMessage(), e);
         return ApiResponse.error(e.getErrorCode());
     }
 
