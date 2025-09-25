@@ -37,7 +37,7 @@ public class AuthController {
         return ApiResponse.success("인증되었습니다. 회원가입을 진행해 주세요.");
     }
 
-    @PostMapping("/api/auth/join")
+    @PostMapping("/api/ent/auth/join")
     public ResponseEntity<ApiResponse<Void>> join(@RequestBody @Valid UserJoinRequest request) {
         authService.join(request);
         return ApiResponse.success("회원가입이 완료되었습니다. 다시 로그인 해주세요.");
