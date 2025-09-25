@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api")
 public class ColorController {
 
     private final ColorService colorService;
@@ -26,7 +27,7 @@ public class ColorController {
         this.artistRepository = artistRepository;
     }
 
-    @GetMapping("/colors")
+    @GetMapping("/ent/colors")
     public List<ColorResponse> getColors() {
         return colorRepository.findAll()
                 .stream()
@@ -35,13 +36,13 @@ public class ColorController {
     }
 
     // 특정 색상 조회
-    @GetMapping("/colors/{colorId}")
+    @GetMapping("/ent/colors/{colorId}")
     public ColorResponse getColor(@PathVariable int colorId) {
         return ColorResponse.from(colorService.select(colorId));
     }
 
     // 색상 등록
-    @PostMapping("/colors")
+    @PostMapping("/ent/colors")
     public ResponseEntity<?> registColor(@RequestBody ColorRequest request) {
         Artist artist = artistRepository.findById(request.artistId())
                 .orElseThrow(() -> new RuntimeException("Artist Not Found"));
@@ -56,7 +57,7 @@ public class ColorController {
     }
 
     // 색상 수정
-    @PutMapping("/colors/{colorId}")
+    @PutMapping("/ent/colors/{colorId}")
     public ResponseEntity<?> updateColor(@PathVariable int colorId, @RequestBody ColorRequest request) {
         Color color = colorService.select(colorId); // 기존 데이터 조회
 
@@ -70,14 +71,14 @@ public class ColorController {
     }
 
     // 색상 삭제
-    @DeleteMapping("/colors/{colorId}")
+    @DeleteMapping("/ent/colors/{colorId}")
     public ResponseEntity<?> deleteColor(@PathVariable int colorId) {
         colorService.delete(colorId);
         return ResponseEntity.ok(Map.of("result", "컬러 삭제 성공"));
     }
 
     // 특정 아티스트의 컬러 조회
-    @GetMapping("/artists/{artistId}/colors")
+    @GetMapping("/ent/artists/{artistId}/colors")
     public ResponseEntity<?> getColorByArtist(@PathVariable int artistId) {
         return ResponseEntity.ok(colorService.findByArtistId(artistId));
     }
