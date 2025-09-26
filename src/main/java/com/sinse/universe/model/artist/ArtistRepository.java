@@ -14,5 +14,5 @@ public interface ArtistRepository extends JpaRepository<Artist, Integer> {
     // 특정 소속사의 모든 아티스트 조회
     // Artist ID로 소속 Member 조회
     List<Artist> findByPartnerId(int partnerId);
-
+    boolean existsByName(String name);
 }

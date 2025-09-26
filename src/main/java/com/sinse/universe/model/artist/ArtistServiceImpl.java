@@ -1,6 +1,10 @@
 package com.sinse.universe.model.artist;
 
 import com.sinse.universe.domain.Artist;
+import com.sinse.universe.domain.Partner;
+import com.sinse.universe.dto.request.ArtistRequest;
+import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.partner.PartnerRepository;
 import com.sinse.universe.util.UploadManager;
 import jakarta.transaction.Transactional;
@@ -13,7 +17,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -44,18 +50,43 @@ public class ArtistServiceImpl implements ArtistService{
     @Value("${upload.artist-logo-url}")
     private String artistLogoUrl;
 
+    @Value("${upload.artist-main-max-size}")
+    private long artistMainMaxSize;
+
+    @Value("${upload.artist-logo-max-size}")
+    private long artistLogoMaxSize;
+
     // 아티스트 전체 조회
     @Override
     public List<Artist> selectAll() {return artistRepository.findAll();}
 
     // 아티스트 1건 조회
     @Override
-    public Artist select(int artistId) {return artistRepository.findById(artistId).orElse(null);}
+    public Artist select(int artistId) {
+        return artistRepository.findById(artistId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
+    }
 
     // 아티스트 등록
     @Override
     @Transactional
-    public void regist(Artist artist) {
+    public void regist(ArtistRequest request) {
+        Partner partner = partnerRepository.findById(request.partnerId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PARTNER_NOT_FOUND));
+
+        // ✅ 이름 중복 검사
+        if (artistRepository.existsByName(request.name())) {
+            throw new CustomException(ErrorCode.ARTIST_NAME_DUPLICATED);
+        }
+
+        Artist artist = new Artist();
+        artist.setName(request.name());
+        artist.setDescription(request.description());
+        artist.setPartner(partner);
+        artist.setDebutDate(request.debutDate());
+        artist.setInsta(request.insta());
+        artist.setYoutube(request.youtube());
+
         artistRepository.save(artist);
     }
 
@@ -69,7 +100,7 @@ public class ArtistServiceImpl implements ArtistService{
                        boolean deleteLogoImage) throws IOException {
 
         Artist existing = artistRepository.findById(artist.getId())
-                .orElseThrow(() -> new RuntimeException("Artist not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
 
         existing.setName(artist.getName());
         existing.setDescription(artist.getDescription());
@@ -81,41 +112,58 @@ public class ArtistServiceImpl implements ArtistService{
         // 메인 이미지 삭제
         if (deleteMainImage && existing.getImg() != null) {
             Path oldPath = Paths.get(baseDir).resolve(existing.getImg().replaceFirst("^" + urlPrefix + "/", ""));
-
-            Files.deleteIfExists(oldPath);
+            try {
+                Files.deleteIfExists(oldPath);
+            } catch (IOException e) {
+                log.error("메인 이미지 삭제 실패 path={}", oldPath, e);
+                // ❗ API 전체 실패 대신 로그만 남기고 DB만 갱신
+            }
             existing.setImg(null);
         }
 
         // 로고 이미지 삭제
         if (deleteLogoImage && existing.getLogoImg() != null) {
-            Path oldPath = Paths.get(baseDir).resolve(existing.getImg().replaceFirst("^" + urlPrefix + "/", ""));
-
-            Files.deleteIfExists(oldPath);
+            Path oldPath = Paths.get(baseDir).resolve(existing.getLogoImg().replaceFirst("^" + urlPrefix + "/", ""));
+            try {
+                Files.deleteIfExists(oldPath);
+            } catch (IOException e) {
+                log.error("로고 이미지 삭제 실패 path={}", oldPath, e);
+                // ❗ 동일하게 로그만 남기고 진행
+            }
             existing.setLogoImg(null);
         }
 
         // 새 메인 이미지 업로드
         if (mainImage != null && !mainImage.isEmpty()) {
+
             String mainDir = artistMainDir + "/a" + existing.getId();
             String mainFilename = UploadManager.storeAndReturnName(mainImage, mainDir);
             existing.setImg(artistMainUrl + "/a" + existing.getId() + "/" + mainFilename);
         }
 
-// 새 로고 이미지 업로드
+        // 새 로고 이미지 업로드
         if (logoImage != null && !logoImage.isEmpty()) {
             String logoDir = artistLogoDir + "/a" + existing.getId();
             String logoFilename = UploadManager.storeAndReturnName(logoImage, logoDir);
             existing.setLogoImg(artistLogoUrl + "/a" + existing.getId() + "/" + logoFilename);
         }
 
-
         artistRepository.save(existing);
     }
 
     // 아티스트 삭제
     @Override
+    @Transactional
     public void delete(int artistId) {
-        artistRepository.deleteById(artistId);
+        Artist artist = artistRepository.findById(artistId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
+
+        // 🔹 연관 데이터 검증
+        if (artist.getMembers() != null && !artist.getMembers().isEmpty()) {
+            throw new CustomException(ErrorCode.ARTIST_DELETE_NOT_ALLOWED);
+        }
+
+        artistRepository.delete(artist);
     }
 
     // 소속사(Partner) ID로 아티스트 조회
@@ -123,5 +171,4 @@ public class ArtistServiceImpl implements ArtistService{
     public List<Artist> findByPartnerId(int partnerId) {
         return artistRepository.findByPartnerId(partnerId);
     }
-
 }

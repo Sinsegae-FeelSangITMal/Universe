@@ -4,6 +4,8 @@ import com.sinse.universe.domain.Artist;
 import com.sinse.universe.domain.Color;
 import com.sinse.universe.dto.request.ColorRequest;
 import com.sinse.universe.dto.response.ColorResponse;
+import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.model.color.ColorRepository;
 import com.sinse.universe.model.color.ColorService;
@@ -45,7 +47,7 @@ public class ColorController {
     @PostMapping("/ent/colors")
     public ResponseEntity<?> registColor(@RequestBody ColorRequest request) {
         Artist artist = artistRepository.findById(request.artistId())
-                .orElseThrow(() -> new RuntimeException("Artist Not Found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
         
         Color color = new Color();
         color.setBgColor(request.bgColor());

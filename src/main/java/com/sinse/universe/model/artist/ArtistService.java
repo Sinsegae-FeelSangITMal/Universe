@@ -1,6 +1,7 @@
 package com.sinse.universe.model.artist;
 
 import com.sinse.universe.domain.Artist;
+import com.sinse.universe.dto.request.ArtistRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ public interface ArtistService {
     public Artist select(int artistId);
 
     // 아티스트 등록
-    public void regist(Artist artist);
+    public void regist(ArtistRequest request);
 
     // 아티스트 수정
     public void update(Artist artist, MultipartFile mainImage, MultipartFile logoImage, boolean deleteMainImage, boolean deleteLogoImage) throws IOException;

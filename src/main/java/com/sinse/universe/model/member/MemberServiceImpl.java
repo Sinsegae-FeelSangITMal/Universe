@@ -1,6 +1,8 @@
 package com.sinse.universe.model.member;
 
 import com.sinse.universe.domain.Member;
+import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.util.UploadManager;
 import jakarta.transaction.Transactional;
@@ -43,15 +45,18 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void regist(Member member, MultipartFile img) throws IOException {
-        // 먼저 member 저장 (PK 생성용)
+        // 소속 아티스트 확인
+        if (member.getArtist() == null) {
+            throw new CustomException(ErrorCode.MEMBER_ARTIST_REQUIRED);
+        }
+
+        // 1차 저장 (PK 생성용)
         memberRepository.saveAndFlush(member);
 
         if (img != null && !img.isEmpty()) {
-            // /upload/member/a{artistId}/m{memberId}
             String dir = memberBaseDir + "/a" + member.getArtist().getId() + "/m" + member.getId();
             String filename = UploadManager.storeAndReturnName(img, dir);
 
-            // DB에는 웹 접근 가능한 URL 저장
             String url = memberUrl + "/a" + member.getArtist().getId() + "/m" + member.getId() + "/" + filename;
             member.setImg(url);
         }
@@ -64,60 +69,69 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void update(Member member, MultipartFile img, boolean deleteImg) throws IOException {
         Member existing = memberRepository.findById(member.getId())
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode .MEMBER_NOT_FOUND) );
 
-        // 기본 정보 수정
+        // 소속 아티스트 검사
+        if (member.getArtist() == null) {
+            throw new CustomException(ErrorCode.MEMBER_ARTIST_REQUIRED);
+        }
+
         existing.setName(member.getName());
         existing.setArtist(member.getArtist());
 
-        // 1. 이미지 삭제 요청이 있을 경우
-        // 1. 이미지 삭제 요청이 있을 경우
+        // 1. 이미지 삭제
         if (deleteImg && existing.getImg() != null) {
             Path oldPath = Paths.get(baseDir).resolve(existing.getImg().replaceFirst("^" + urlPrefix + "/", ""));
-
             try {
                 Files.deleteIfExists(oldPath);
             } catch (IOException e) {
                 log.warn("기존 멤버 이미지 삭제 실패: {}", oldPath, e);
             }
-            existing.setImg(null); // DB에서도 제거
+            existing.setImg(null);
         }
 
-        // 2. 새 이미지가 업로드된 경우
+        // 2. 새 이미지 업로드
         if (img != null && !img.isEmpty()) {
-            // 기존 파일이 있으면 정리 (중복 방지)
             if (existing.getImg() != null) {
                 Path oldPath = Paths.get(baseDir).resolve(existing.getImg().replaceFirst("^" + urlPrefix + "/", ""));
-
                 Files.deleteIfExists(oldPath);
             }
 
             String dir = memberBaseDir + "/a" + member.getArtist().getId() + "/m" + member.getId();
             String filename = UploadManager.storeAndReturnName(img, dir);
 
-            // DB에는 URL 경로 저장
             String url = memberUrl + "/a" + member.getArtist().getId() + "/m" + member.getId() + "/" + filename;
-            member.setImg(url);
-
+            existing.setImg(url);
         }
-
-        // 3. deleteImg=false AND img=null → 아무 일도 하지 않음
-        // 기존 이미지는 그대로 유지
 
         memberRepository.save(existing);
     }
 
     // 멤버 삭제
     @Override
+    @Transactional
     public void delete(int memberId) {
-        memberRepository.deleteById(memberId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 🔹 이미지 파일 정리 (있다면)
+        if (member.getImg() != null) {
+            Path oldPath = Paths.get(baseDir).resolve(member.getImg().replaceFirst("^" + urlPrefix + "/", ""));
+            try {
+                Files.deleteIfExists(oldPath);
+            } catch (IOException e) {
+                log.warn("멤버 이미지 삭제 실패: {}", oldPath, e);
+            }
+        }
+
+        memberRepository.delete(member);
     }
 
-    // 멤버 단건 조회 (수정/삭제 시 사용)
+    // 멤버 단건 조회
     @Override
     public Member findById(int memberId) {
         return memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("멤버를 찾을 수 없습니다: " + memberId));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     // 아티스트 ID로 멤버 목록 조회

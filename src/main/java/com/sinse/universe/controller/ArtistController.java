@@ -49,16 +49,7 @@ public class ArtistController {
     // 아티스트 등록
     @PostMapping("/ent/artists")
     public ResponseEntity<?> addArtist(@RequestBody ArtistRequest request) {
-        Partner partner = partnerRepository.findById(request.partnerId())
-                .orElseThrow(() -> new RuntimeException("Partner not found"));
-
-        Artist artist = new Artist();
-        artist.setName(request.name());
-        artist.setDescription(request.description());
-        artist.setPartner(partner);
-
-        artistService.regist(artist);
-
+        artistService.regist(request);
         return ResponseEntity.ok(Map.of("result","아티스트 등록 성공"));
     }
 

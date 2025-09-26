@@ -1,6 +1,8 @@
 package com.sinse.universe.model.partner;
 
 import com.sinse.universe.domain.Partner;
+import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.exception.CustomException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +23,8 @@ public class PartnerServiceImpl implements PartnerService{
 
     @Override
     public Partner select(int partnerId) {
-        return partnerRepository.findById(partnerId).orElse(null);
+        return partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PARTNER_NOT_FOUND));
     }
 
     @Override
@@ -31,11 +34,22 @@ public class PartnerServiceImpl implements PartnerService{
 
     @Override
     public void update(Partner partner) {
-        partnerRepository.save(partner);
+        Partner existing = partnerRepository.findById(partner.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PARTNER_NOT_FOUND));
+
+        // 테이블 컬럼에 맞게 필드 업데이트
+        existing.setName(partner.getName());  // PT_NAME
+        existing.setAddress(partner.getAddress());    // PT_ADR
+        existing.setFile(partner.getFile());    // PT_FIL
+
+        partnerRepository.save(existing);
     }
 
     @Override
     public void delete(int partnerId) {
-        partnerRepository.deleteById(partnerId);
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PARTNER_NOT_FOUND));
+
+        partnerRepository.delete(partner);
     }
 }

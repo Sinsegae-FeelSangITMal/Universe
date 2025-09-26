@@ -2,6 +2,8 @@ package com.sinse.universe.model.color;
 
 import com.sinse.universe.domain.Artist;
 import com.sinse.universe.domain.Color;
+import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.artist.ArtistRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +27,8 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public Color select(int colorId) {
-        return colorRepository.findById(colorId).orElse(null);
+        return colorRepository.findById(colorId)
+                .orElseThrow(() -> new CustomException(ErrorCode .COLOR_NOT_FOUND) );
     }
 
     @Override
@@ -35,17 +38,17 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public void update(Color color) {
-        // DB에서 기존 Color 가져오기
         Color existing = colorRepository.findById(color.getId())
-                .orElseThrow(() -> new RuntimeException("Color not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.COLOR_NOT_FOUND));
 
-        // 변경 가능한 필드만 update
+        // 변경 가능한 필드만 업데이트
         existing.setBgColor(color.getBgColor());
 
-        // ✅ artist는 null로 덮어쓰지 않도록 체크
-        if (color.getArtist() != null && color.getArtist().getId() > 0) {
+        // Artist 갱신 (null/잘못된 ID 방지)
+        if (color.getArtist() != null
+                && color.getArtist().getId() > 0) {
             Artist artist = artistRepository.findById(color.getArtist().getId())
-                    .orElseThrow(() -> new RuntimeException("Artist not found"));
+                    .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
             existing.setArtist(artist);
         }
 
@@ -54,11 +57,18 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public void delete(int colorId) {
-        colorRepository.deleteById(colorId);
+        Color existing = colorRepository.findById(colorId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COLOR_NOT_FOUND));
+        colorRepository.delete(existing);
     }
 
     @Override
     public Color findByArtistId(int artistId) {
-        return colorRepository.findByArtistId(artistId);
+
+        Color color = colorRepository.findByArtistId(artistId);
+        if (color == null) {
+            throw new CustomException(ErrorCode.COLOR_NOT_FOUND);
+        }
+        return color;
     }
 }
