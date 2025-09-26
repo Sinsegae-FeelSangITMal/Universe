@@ -25,7 +25,7 @@ public class User {
     @Column(name = "UR_NAME")
     private String name;
 
-    @Column(name = "UR_STATUS")
+    @Column(name = "UR_STTUS")
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 

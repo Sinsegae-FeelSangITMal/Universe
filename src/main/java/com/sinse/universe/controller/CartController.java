@@ -4,10 +4,7 @@ import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.CartResponse;
 import com.sinse.universe.model.cart.CartService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,4 +21,17 @@ public class CartController {
     public ResponseEntity<ApiResponse<List<CartResponse>>> getCarts(@PathVariable int userId) {
         return ApiResponse.success("장바구니 목록 요청", cartService.getCarts(userId));
     }
+
+    // 장바구니 항목 삭제
+    @DeleteMapping("/{cartId}")
+    public ResponseEntity<ApiResponse<List<CartResponse>>> delCarts(@PathVariable int cartId) {
+        return null;
+    }
+
+    // 장바구니 항목 추가
+    @PostMapping("/{cartId}")
+    public ResponseEntity<ApiResponse<List<CartResponse>>> addCarts(@PathVariable int cartId) {
+        return null;
+    }
+
 }
