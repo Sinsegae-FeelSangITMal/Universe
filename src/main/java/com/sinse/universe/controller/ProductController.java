@@ -4,8 +4,11 @@ import com.sinse.universe.domain.Product;
 import com.sinse.universe.dto.request.ProductRegistRequest;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.ProductDetailResponse;
+import com.sinse.universe.dto.response.ProductMainResponse;
 import com.sinse.universe.dto.response.ProductResponse;
 import com.sinse.universe.model.product.ProductService;
+import com.sinse.universe.model.product.ProductUserService;
+import com.sinse.universe.model.product.ProductUserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,9 +33,11 @@ import java.util.Map;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductUserService productUserService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductUserService productUserService) {
         this.productService = productService;
+        this.productUserService = productUserService;
     }
 
     @GetMapping("/ent/products/{productId}")
@@ -95,4 +100,26 @@ public class ProductController {
         int id = productService.update(productId, productRegistRequest, mainImage, detailImages, deleteDetailImageIds);
         return ApiResponse.success("수정 성공", Map.of("id", id)); // 200 OK
     }
+
+    /* -----------------------------------
+    유저페이지 요청
+    -------------------------------------- */
+    // /api/user/products/new : 최신 상품 페이지네이션 (기본 24개, registDate desc)
+    @GetMapping("/products/new")
+    public ResponseEntity<ApiResponse<Page<ProductMainResponse>>> newProducts(
+            @PageableDefault(size = 24, sort = "registDate", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        // 서비스는 Page<Product> 반환
+        Page<Product> page = productUserService.pageNewProducts(pageable);
+
+        // 엔티티 -> DTO 변환 (한 페이지 content만 매핑)
+        List<ProductMainResponse> content = page.getContent().stream()
+                .map(ProductMainResponse::from)   // 아래 record의 static from 사용
+                .toList();
+
+        Page<ProductMainResponse> dtoPage = new PageImpl<>(content, pageable, page.getTotalElements());
+        return ApiResponse.success("신규 상품 페이지 반환 성공", dtoPage);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.sinse.universe.model.product;
 
 import com.sinse.universe.domain.Product;
+import com.sinse.universe.domain.ProductImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +28,17 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
       order by p.id desc
   """)
     List<Product> findWithRefsByIds(@Param("ids") List<Integer> ids);
+
+    @Query("""
+        select distinct p
+        from Product p
+        join p.productImageList pi
+        where p.status = "active"
+          and pi.role = "main"
+        order by p.registDate desc, p.id desc
+        """)
+    Page<Product> findLatestActiveWithMain(
+            Pageable pageable
+    );
+
 }
