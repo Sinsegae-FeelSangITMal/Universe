@@ -23,8 +23,8 @@ public class UserServiceImpl {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void checkDuplicateEmail(String loginId){
-        if(userRepository.existsByLoginId(loginId)){
+    public void checkDuplicateEmail(String email){
+        if(userRepository.existsByEmail(email)){
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
     }
@@ -32,7 +32,7 @@ public class UserServiceImpl {
     @Transactional
     public User createUser(UserJoinRequest form) {
         User user = User.builder()
-                .loginId(form.email())
+                .email(form.email())
                 .name(form.name())
                 .password(passwordEncoder.encode(form.password())) // 암호화
                 .role(roleService.findByName(form.role()))

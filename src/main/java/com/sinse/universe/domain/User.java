@@ -22,11 +22,17 @@ public class User {
     @Column(name = "UR_ID")
     private int id;
 
-    @Column(name="UR_LOGIN_ID", nullable = false, unique = true)
-    private String loginId;
+    @Column(name = "UR_EMAIL")
+    private String email;
 
-    @Column(name = "UR_PWD", nullable = false)
+    @Column(name = "UR_PWD")
     private String password;
+
+    @Column(name = "UR_PROVIDER")
+    private String provider;
+
+    @Column(name = "UR_OAUTH_ID")
+    private String oauthId;
 
     @Column(name = "UR_NAME", nullable = false)
     private String name;
