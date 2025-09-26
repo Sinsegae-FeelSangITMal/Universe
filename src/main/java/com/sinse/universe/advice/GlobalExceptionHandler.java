@@ -3,6 +3,7 @@ package com.sinse.universe.advice;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.exception.CustomException;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -58,12 +59,12 @@ public class GlobalExceptionHandler {
                 .getFieldErrors()
                 .stream()
                 .map(error -> {
-                            Map<String, String> map = new LinkedHashMap<>();   // 순서가 보장되는 LinkedHashMap 사용
-                            map.put("field", error.getField());
-                            map.put("message", error.getDefaultMessage());
-                            map.put("rejected", error.getRejectedValue().toString());
-                            return map;
-                        }
+                        Map<String, String> map = new LinkedHashMap<>();   // 순서가 보장되는 LinkedHashMap 사용
+                        map.put("field", error.getField());
+                        map.put("message", error.getDefaultMessage());
+                        map.put("rejected", error.getRejectedValue().toString());
+                        return map;
+                    }
                 )
                 .toList();
 
@@ -74,7 +75,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleMaxUpload(MaxUploadSizeExceededException ex) {
         log.debug("MaxUploadSizeExceededException 동작");
         return ApiResponse.error(ErrorCode.FILE_TOO_LARGE, Map.of(
-                "hint", "파일이 너무 큽니다. (1MB 이하만 가능)"
+                "hint", "파일이 너무 큽니다. (최대 10MB)"
         ));
     }
 
