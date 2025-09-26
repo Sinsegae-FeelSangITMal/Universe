@@ -114,14 +114,25 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        // 🔹 이미지 파일 정리 (있다면)
-        if (member.getImg() != null) {
-            Path oldPath = Paths.get(baseDir).resolve(member.getImg().replaceFirst("^" + urlPrefix + "/", ""));
-            try {
-                Files.deleteIfExists(oldPath);
-            } catch (IOException e) {
-                log.warn("멤버 이미지 삭제 실패: {}", oldPath, e);
+        Path filePath = Paths.get(baseDir).resolve(member.getImg().replaceFirst("^" + urlPrefix + "/", ""));
+        try {
+            Files.deleteIfExists(filePath); // 파일 삭제
+
+            // ✅ 상위 폴더(m + memberId) 삭제 시도
+            Path memberDir = filePath.getParent();
+            if (memberDir != null && Files.isDirectory(memberDir)) {
+                Files.deleteIfExists(memberDir);
             }
+
+            // ✅ 아티스트 폴더(a + artistId)도 비었으면 삭제 (선택)
+            Path artistDir = memberDir.getParent();
+            if (artistDir != null && Files.isDirectory(artistDir) &&
+                    Files.list(artistDir).findAny().isEmpty()) {
+                Files.deleteIfExists(artistDir);
+            }
+
+        } catch (IOException e) {
+            log.warn("멤버 이미지/폴더 삭제 실패: {}", filePath, e);
         }
 
         memberRepository.delete(member);
