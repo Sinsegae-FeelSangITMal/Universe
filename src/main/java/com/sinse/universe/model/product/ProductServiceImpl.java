@@ -25,11 +25,18 @@ import java.util.*;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    @Value("${file.upload.product.main}")   // 예: C:/upload/product/main
+    @Value("${upload.product-main-dir}")   // 예: C:/upload/product/main
     private String productMainDir;
 
-    @Value("${file.upload.product.detail}") // 예: C:/upload/product/detail
+    @Value("${upload.product-detail-dir}") // 예: C:/upload/product/detail
     private String productDetailDir;
+
+    @Value("${upload.product-main-url}")   // 예: /images/product/main
+    private String productMainUrl;
+
+    @Value("${upload.product-detail-url}") // 예: /images/product/detail
+    private String productDetailUrl;
+
 
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
@@ -72,7 +79,7 @@ public class ProductServiceImpl implements ProductService {
                 String fname = UploadManager.storeAndReturnName(mainImage, baseDir);
                 uploadedPaths.add(Paths.get(baseDir, fname));
 
-                String url = "/upload/product/main/p" + product.getId() + "/" + fname; // 공개 URL
+                String url = productMainUrl+"/p" + product.getId() + "/" + fname; // 공개 URL
                 ProductImage mainImg = new ProductImage();
                 mainImg.setProduct(product);
                 mainImg.setRole(ProductImage.Role.MAIN);
@@ -93,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
                     String fname = UploadManager.storeAndReturnName(file, baseDir);
                     uploadedPaths.add(Paths.get(baseDir, fname));
 
-                    String url = "/upload/product/detail/p" + product.getId() + "/" + fname; // 공개 URL
+                    String url = productDetailUrl+"/p" + product.getId() + "/" + fname; // 공개 URL
                     ProductImage pi = new ProductImage();
                     pi.setProduct(product);
                     pi.setRole(ProductImage.Role.DETAIL);
@@ -198,7 +205,7 @@ public class ProductServiceImpl implements ProductService {
                 String fname = UploadManager.storeAndReturnName(mainImage, mainBaseDir);
                 uploadedNow.add(Paths.get(mainBaseDir, fname));
 
-                String url = "/upload/product/main/p" + productId + "/" + fname; // 공개 URL
+                String url = productMainUrl+"/p" + productId + "/" + fname; // 공개 URL
                 ProductImage newMain = new ProductImage();
                 newMain.setProduct(product);
                 newMain.setRole(ProductImage.Role.MAIN);
@@ -227,7 +234,7 @@ public class ProductServiceImpl implements ProductService {
                     String fname = UploadManager.storeAndReturnName(file, detailBaseDir);
                     uploadedNow.add(Paths.get(detailBaseDir, fname));
 
-                    String url = "/upload/product/detail/p" + productId + "/" + fname; // 공개 URL
+                    String url = productDetailUrl+"/p" + productId + "/" + fname; // 공개 URL
                     ProductImage pi = new ProductImage();
                     pi.setProduct(product);
                     pi.setRole(ProductImage.Role.DETAIL);
@@ -324,20 +331,13 @@ public class ProductServiceImpl implements ProductService {
     private Path toPhysicalPath(String url) {
         if (url == null || url.isBlank()) return null;
 
-        final String MAIN_PREFIX   = "/upload/product/main/";
-        final String DETAIL_PREFIX = "/upload/product/detail/";
-
-        if (url.startsWith(MAIN_PREFIX)) {
-            String rest = url.substring(MAIN_PREFIX.length()); // p{productId}/filename
+        if (url.startsWith(productMainDir)) {
+            String rest = url.substring(productMainDir.length()); // p{productId}/filename
             return Paths.get(productMainDir).resolve(rest.replace("/", FileSystems.getDefault().getSeparator()));
         }
-        if (url.startsWith(DETAIL_PREFIX)) {
-            String rest = url.substring(DETAIL_PREFIX.length());
+        if (url.startsWith(productDetailUrl)) {
+            String rest = url.substring(productDetailUrl.length());
             return Paths.get(productDetailDir).resolve(rest.replace("/", FileSystems.getDefault().getSeparator()));
-        }
-        // 호환: DB에 물리경로가 들어있던 과거 데이터
-        if (url.startsWith("C:/") || url.startsWith("C:\\")) {
-            return Paths.get(url);
         }
         return null;
     }

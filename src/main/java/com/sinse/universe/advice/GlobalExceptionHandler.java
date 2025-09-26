@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleMaxUpload(MaxUploadSizeExceededException ex) {
         log.debug("MaxUploadSizeExceededException 동작");
         return ApiResponse.error(ErrorCode.FILE_TOO_LARGE, Map.of(
-                "hint", "파일이 너무 큽니다."
+                "hint", "파일이 너무 큽니다. (최대 10MB)"
         ));
     }
 
