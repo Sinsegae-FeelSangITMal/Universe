@@ -71,7 +71,7 @@ public class AuthServiceImpl {
             throw new CustomException(ErrorCode.PASSWORD_CONFIRM_NOT_MATCH);
         }
 
-        User user = userService.createUser(form);
+        User user = userService.createGeneralUser(form);
         log.info("회원가입 성공 user={}", user);
     }
 }
