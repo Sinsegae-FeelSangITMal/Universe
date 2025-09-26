@@ -22,13 +22,13 @@ public class CartController {
         return ApiResponse.success("장바구니 목록 요청", cartService.getCarts(userId));
     }
 
-    // 장바구니 항목 삭제
+    // 장바구니 항목 삭제 (미완성)
     @DeleteMapping("/{cartId}")
     public ResponseEntity<ApiResponse<List<CartResponse>>> delCarts(@PathVariable int cartId) {
         return null;
     }
 
-    // 장바구니 항목 추가
+    // 장바구니 항목 추가 (미완성)
     @PostMapping("/{cartId}")
     public ResponseEntity<ApiResponse<List<CartResponse>>> addCarts(@PathVariable int cartId) {
         return null;

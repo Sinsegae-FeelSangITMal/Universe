@@ -2,11 +2,9 @@ package com.sinse.universe.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sinse.universe.domain.Order;
-import com.sinse.universe.domain.User;
 import com.sinse.universe.enums.OrderStatus;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public record OrderForUserResponse(
@@ -23,7 +21,7 @@ public record OrderForUserResponse(
         LocalDateTime cancelDate,
         @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
         LocalDateTime refundDate,
-        UserResponse user,
+        OrderUserResponse user,
         List<OrderProductResponse> orderProducts
         ) {
     public static OrderForUserResponse from(Order o) {
@@ -38,7 +36,7 @@ public record OrderForUserResponse(
                 o.getPhone(),
                 o.getCancelDate(),
                 o.getRefundDate(),
-                UserResponse.from(o.getUser()),
+                OrderUserResponse.from(o.getUser()),
                 o.getOrderProducts().stream()
                     .map(OrderProductResponse::from)
                     .toList()

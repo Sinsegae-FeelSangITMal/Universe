@@ -1,8 +1,10 @@
 package com.sinse.universe.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /*
@@ -11,7 +13,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
     이후 Gateway 추가시 이 코드 불필요
  */
 @Configuration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${upload.url-prefix}")
+    private String urlPrefix;
+
+    @Value("${upload.base-dir}")
+    private String baseDir;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 예: /uploads/** → file:///C:/upload/
+        registry.addResourceHandler(urlPrefix + "/**")
+                .addResourceLocations("file:///" + baseDir + "/");
+    }
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -19,11 +34,11 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // 모든 요청 경로 허용
-                .allowedOrigins("http://localhost:5173")
-                    .allowedMethods("GET", "POST", "PUT", "DELETE")
-                    .allowCredentials(true); // 인증정보(쿠키) 포함 허용 여부
+                        // 프론트 개발 서버 (유저: 4444 / 판매자: 5555 / 관리자: 6666)
+                        .allowedOrigins("http://localhost:4444", "http://localhost:5555", "http://localhost:6666")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowCredentials(true); // 인증정보(쿠키) 포함 허용 여부
             }
         };
     }
-    
 }

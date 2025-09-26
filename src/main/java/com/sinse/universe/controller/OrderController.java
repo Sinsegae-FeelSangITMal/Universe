@@ -3,6 +3,8 @@ package com.sinse.universe.controller;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.CartResponse;
 import com.sinse.universe.dto.response.OrderForEntResponse;
+import com.sinse.universe.dto.response.PartnerArtistResponse;
+import com.sinse.universe.model.artist.ArtistService;
 import com.sinse.universe.model.cart.CartService;
 import com.sinse.universe.model.order.OrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +21,10 @@ import java.util.List;
 @RequestMapping("/api")
 public class OrderController {
     private final OrderService orderService;
-    public OrderController(OrderService orderService) {
+    private final ArtistService artistService;
+    public OrderController(OrderService orderService, ArtistService artistService) {
         this.orderService = orderService;
+        this.artistService = artistService;
     }
 
     // 한 소속사의 주문 목록 요청
@@ -47,5 +51,10 @@ public class OrderController {
         return ApiResponse.success("주문 상세 요청", orderService.getDetail(orderId));
     }
 
+    // 한 소속사의 아티스트 목록 요청
+    @GetMapping("/ent/orders/artists/{partnerId}")
+    public ResponseEntity<ApiResponse<List<PartnerArtistResponse>>> getArtists(@PathVariable int partnerId) {
+        return ApiResponse.success("한 소속사의 아티스트 목록", artistService.selectByPartnerId(partnerId));
+    }
 
 }

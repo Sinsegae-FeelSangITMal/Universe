@@ -10,7 +10,7 @@ import java.util.List;
 
 public record OrderForEntResponse(
         String no,
-        @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime date,
         OrderStatus status,
         Integer totalPrice,

@@ -44,7 +44,7 @@ public class Order {
     @JoinColumn(name = "UR_ID", nullable = false)
     private User user;
 
-    // OrderItem 매핑하기 (부분환불/부분취소 같은 기능을 넣을 때만 orderitemrepository를 만들어서 개별 처리)
+    // OrderItem 매핑하기 (부분환불/부분취소 같은 기능을 넣을 때만 orderproductrepository를 만들어서 개별 처리)
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderProduct> orderProducts =  new ArrayList<>();
 }

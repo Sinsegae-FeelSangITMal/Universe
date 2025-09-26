@@ -16,23 +16,8 @@ public class User {
     @Column(name = "UR_ID")
     private int id;
 
-    @Column(name="UR_LOGIN_ID", nullable=false, unique=true)
-    private String loginId;
-
-    @Column(name = "UR_PWD")
-    private String password;
-
+    // 현재 이름 컬럼만 사용 중이라 다 바꿔도 돼여 - 승연
     @Column(name = "UR_NAME")
     private String name;
 
-    @Column(name = "UR_STTUS")
-    @Enumerated(EnumType.STRING)
-    private UserStatus status;
-
-    @Column(name="UR_JOIN_DATE")
-    private LocalDateTime joinDate;
-
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "RO_ID", nullable = false)
-    //private Role role;
 }

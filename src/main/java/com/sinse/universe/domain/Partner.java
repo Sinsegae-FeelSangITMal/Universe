@@ -1,10 +1,13 @@
 package com.sinse.universe.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Table(name="PARTNER")
+import java.util.List;
+
 @Entity
+@Table(name = "PARTNER")
 @Data
 public class Partner {
 
@@ -20,5 +23,10 @@ public class Partner {
     private String address;
 
     @Column(name = "PT_FIL")
-    private String filePath;
+    private String file;
+
+    @OneToMany(mappedBy = "partner", fetch = FetchType.LAZY)
+    @JsonIgnore  // ✅ 순환참조 방지
+    private List<Artist> artists;
 }
+

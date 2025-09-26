@@ -1,16 +1,18 @@
 package com.sinse.universe.domain;
 
-import com.sinse.universe.enums.ProductStatus;
-import com.sinse.universe.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "PRODUCT")
 @Data
 public class Product {
+
+    public enum ProductStatus { ACTIVE, INACTIVE } // DB 값과 동일 소문자
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +28,6 @@ public class Product {
     @Column(name = "PD_PRICE", nullable = false)
     private Integer price;
 
-    @Column(name = "PD_REGIST_DATE", nullable = false)
-    private LocalDateTime registDate;
-
     @Column(name = "PD_OPEN_DATE")
     private LocalDateTime openDate;
 
@@ -41,8 +40,8 @@ public class Product {
     @Column(name = "PD_LIMIT_PER_USER")
     private Integer limitPerUser = 0;
 
-    @Column(name = "PD_STATUS", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name="PD_STATUS")
     private ProductStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -52,4 +51,7 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AR_ID")
     private Artist artist;
+
+    @OneToMany(mappedBy ="product", fetch = FetchType.EAGER)
+    private List<ProductImage> productImageList = new ArrayList<>();
 }
