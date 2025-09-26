@@ -1,9 +1,6 @@
 package com.sinse.universe.util;
 
-import com.sinse.universe.domain.Product;
-import com.sinse.universe.domain.ProductImage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +18,7 @@ public class UploadManager {
         범용 이미지 업로드 메서드 코드
         [input] baseDir : 파일 업로드 할 경로명
         [ouput] return값 : UUID로 바뀐 파일명 반환
-        Service에서는 반환받은 문자열로 db에 저장
+        Service에서 반환받은 문자열로 db에 저장
     --------------------------------------------- */
     public static String storeAndReturnName(MultipartFile file, String baseDir) throws IOException {
         Path dir = createDirectory(baseDir);
@@ -37,12 +34,13 @@ public class UploadManager {
         return newFilename; // 파일명을 서비스단에 돌려줌
     }
 
+
     // 디렉토리 생성 메서드 정의
     // createDirectory("c://upload"), createDirectory("p23")
     public static Path createDirectory(String path) throws IOException {
         Path dir = Paths.get(path);
         Path savePath = Paths.get(path).toAbsolutePath().normalize();
-        if (!(Files.exists(dir) && Files.isDirectory(dir))) {
+        if(!(Files.exists(dir) && Files.isDirectory(dir))){
             Files.createDirectories(dir);
         } else {
             log.debug("{} 디렉토리가 이미 존재함 ", path);
