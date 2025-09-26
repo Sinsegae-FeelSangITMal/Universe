@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
+
 /**
  * Http 응답 메시지 구조 표준화
  */
@@ -43,6 +45,24 @@ public class ApiResponse<T> {
     // 사용: ApiResponse.success(String msg)
     public static <T> ResponseEntity<ApiResponse<T>> success(String message) {
         return success(message, null);
+    }
+
+    // 성공응답 - 201 Created (리소스 생성 시)
+    public static <T> ResponseEntity<ApiResponse<T>> created(String message, T data) {
+        return ResponseEntity
+                .status(201) // HttpStatus.CREATED
+                .body(ApiResponse.<T>builder()
+                        .success(true)
+                        .message(message)
+                        .code("SUCCESS")
+                        .data(data)
+                        .build()
+                );
+    }
+
+    // 오버로드 - data 없는 경우
+    public static <T> ResponseEntity<ApiResponse<T>> created(String message) {
+        return created(message, null);
     }
 
     // 실패응답
