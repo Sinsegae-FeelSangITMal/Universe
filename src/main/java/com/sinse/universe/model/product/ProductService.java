@@ -25,4 +25,7 @@ public interface ProductService {
 
     // 한 아티스트의 모든 상품 조회
     public Page<Product> pageByArtist(Integer artistId, Pageable pageable);
+
+    //  아티스트별 상품 조회
+    List<Product> findByArtistId(int artistId);
 }

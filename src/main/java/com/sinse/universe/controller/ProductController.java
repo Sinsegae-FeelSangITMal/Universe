@@ -95,4 +95,14 @@ public class ProductController {
         int id = productService.update(productId, productRegistRequest, mainImage, detailImages, deleteDetailImageIds);
         return ApiResponse.success("수정 성공", Map.of("id", id)); // 200 OK
     }
+
+    // ✅ 아티스트별 상품 조회 (URL 분리)
+    // 예: GET /api/ent/artists/1/products
+    @GetMapping("/ent/artists/{artistId}/products")
+    public List<ProductResponse> getProductsByArtist(@PathVariable int artistId) {
+        return productService.findByArtistId(artistId)
+                .stream()
+                .map(ProductResponse::from)
+                .toList();
+    }
 }

@@ -50,12 +50,6 @@ public class ArtistServiceImpl implements ArtistService{
     @Value("${upload.artist-logo-url}")
     private String artistLogoUrl;
 
-    @Value("${upload.artist-main-max-size}")
-    private long artistMainMaxSize;
-
-    @Value("${upload.artist-logo-max-size}")
-    private long artistLogoMaxSize;
-
     // 아티스트 전체 조회
     @Override
     public List<Artist> selectAll() {return artistRepository.findAll();}
