@@ -6,7 +6,7 @@ import java.time.Duration;
 
 public class CookieUtil {
 
-    public static ResponseCookie getResponseCookie(String token, Duration maxAge){
+    public static ResponseCookie setResponseCookie(String token, Duration maxAge){
         return ResponseCookie.from("refreshToken", token)
                 .httpOnly(true)
                 .secure(true)

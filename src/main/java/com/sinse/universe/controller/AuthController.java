@@ -4,11 +4,19 @@ import com.sinse.universe.dto.request.EmailSendRequest;
 import com.sinse.universe.dto.request.EmailVerifyRequest;
 import com.sinse.universe.dto.request.UserJoinRequest;
 import com.sinse.universe.dto.response.ApiResponse;
+import com.sinse.universe.dto.response.TokenPair;
 import com.sinse.universe.model.auth.AuthServiceImpl;
+import com.sinse.universe.util.CookieUtil;
+import com.sinse.universe.util.JwtUtil;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * 로그인, 인증 관련 요청을 처리하는 컨트롤러
@@ -16,12 +24,23 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthServiceImpl authService;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(AuthServiceImpl authService) {
-        this.authService = authService;
+    // access token 만료 시 재발급 api
+    @PostMapping("/api/auth/accessToken")
+    public ResponseEntity<ApiResponse<Object>> reissueToken(
+            @CookieValue(name = "refreshToken") String refreshToken
+    ) {
+        TokenPair tokenPair = authService.reissueTokens(refreshToken);
+        ResponseCookie cookie = CookieUtil.setResponseCookie(tokenPair.refreshToken(), jwtUtil.getRefreshTokenTtl());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new ApiResponse<>(true, "새 access token 발급 성공", null, Map.of("accessToken", tokenPair.accessToken())));
     }
 
     // 이메일 인증 코드 발송 api

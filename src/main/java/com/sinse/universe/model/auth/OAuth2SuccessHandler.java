@@ -21,10 +21,11 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Value("${app.front-server.url}")
+    @Value("${app.front-server.user.url}")
     private String baseUrl;
 
     private final JwtUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -35,10 +36,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // JWT 토큰 발급
         int userId = oAuth2User.getUser().getId();
         String roleName = oAuth2User.getUser().getRole().getName().name();
-        String accessToken = jwtUtil.createAccessToken(userId, roleName);
+        String email = oAuth2User.getUser().getEmail();
+        String accessToken = jwtUtil.createAccessToken(userId, roleName, email);
         String refreshToken = jwtUtil.createRefreshToken(userId);
 
-        ResponseCookie refreshCookie = CookieUtil.getResponseCookie(refreshToken, jwtUtil.getRefreshTokenTtl());
+        // refresh token을 쿠키와 redis에 저장
+        refreshTokenRepository.save(String.valueOf(userId), refreshToken, jwtUtil.getRefreshTokenTtl());
+        ResponseCookie refreshCookie = CookieUtil.setResponseCookie(refreshToken, jwtUtil.getRefreshTokenTtl());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
 
