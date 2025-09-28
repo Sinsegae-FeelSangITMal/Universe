@@ -30,3 +30,4 @@ public class Partner {
     private List<Artist> artists;
 }
 
+

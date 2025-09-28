@@ -21,6 +21,15 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${upload.base-dir}")
     private String baseDir;
 
+    @Value("${app.front-server.user.url}")
+    private String frontUserServerUrl;
+
+    @Value("${app.front-server.partner.url}")
+    private String frontPartnerServerUrl;
+
+    @Value("${app.front-server.admin.url}")
+    private String frontAdminServerUrl;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 예: /uploads/** → file:///C:/upload/
@@ -34,8 +43,9 @@ public class WebConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // 모든 요청 경로 허용
-                        .allowedOrigins("http://localhost:5555") // 프론트 개발 서버
+                        .allowedOrigins(frontUserServerUrl, frontPartnerServerUrl, frontAdminServerUrl) // 프론트 서버들
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")   // 헤더에 accessToken 정보가 담겨오기 때문에 허용
                         .allowCredentials(true); // 인증정보(쿠키) 포함 허용 여부
             }
         };
