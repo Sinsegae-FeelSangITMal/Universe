@@ -6,14 +6,18 @@ public record CartProductResponse(
         String name,
         Integer price,
         String artistName,
-        String partnerName
+        String partnerName,
+        Integer limit,
+        Integer stock
 ) {
     public static CartProductResponse from(Product p) {
         return new CartProductResponse(
                 p.getName(),
                 p.getPrice(),
                 p.getArtist() != null ? p.getArtist().getName() : null,
-                p.getArtist() != null ? p.getArtist().getPartner().getName() : null
+                p.getArtist() != null ? p.getArtist().getPartner().getName() : null,
+                p.getLimitPerUser(),
+                p.getStockQuantity()
         );
     }
 }

@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.sinse.universe.enums.ErrorCode.CART_LIMIT;
+import static com.sinse.universe.enums.ErrorCode.CART_NO_STOCK;
+
 @Service
 public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
@@ -37,10 +40,13 @@ public class CartServiceImpl implements CartService {
     // 장바구니에 추가 - 1
     // 상품 목록에서 담기 → 누적
     @Override
-    public void addCart(CartAddRequest request) {
+    public void addCart(CartAddRequest request) throws CustomException {
+        // 유저와 상품 정보 가져오기
         User user = userRepository.getReferenceById(request.userId());
         Product product = productRepository.getReferenceById(request.productId());
+        int limit = product.getLimitPerUser();      // 상품 개수 제한 가져오기
 
+        // 유저와 상품 정보로 장바구니 정보 가져오기, 없으면 새로 데이터 세팅
         Cart cart = cartRepository.findByUser_IdAndProduct_Id(request.userId(), request.productId())
                 .orElseGet(() -> {
                     Cart c = new Cart();
@@ -50,18 +56,33 @@ public class CartServiceImpl implements CartService {
                     return c;
                 });
 
-        cart.setQty(cart.getQty() + request.qty()); // 누적
-        cartRepository.save(cart);
+        // 1. 상품 개수 제한이 없거나, 2. 요청한 개수가 유저 당 개수 제한보다 크지 않으면 요청한 개수 수행
+        if (limit == -1
+                || (limit > -1 && limit >= cart.getQty() + request.qty())) {
+            cart.setQty(cart.getQty() + request.qty());
+            cartRepository.save(cart);
+        } else {
+            // 제한이 있을 경우 제한된 수량까지만 담기
+            cart.setQty(limit);
+            cartRepository.save(cart);
+            throw new CustomException(CART_LIMIT);
+        }
     }
 
     // 장바구니에 추가 - 2
     // 장바구니에서 수정 → 덮어쓰기
     @Override
-    public void updateCart(int cartId, int qty) {
+    public void updateCart(int cartId, int qty) throws CustomException {
+        // 장바구니 정보 가져오기, 없으면 예외 처리
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CART_NOT_FOUND));
-        cart.setQty(qty); // 덮어쓰기
-        cartRepository.save(cart);
+
+        Product product = cart.getProduct();
+
+        if (product.getStockQuantity() >= qty) {
+            cart.setQty(qty); // 덮어쓰기
+            cartRepository.save(cart);
+        }
     }
 
     // 장바구니에서 삭제
