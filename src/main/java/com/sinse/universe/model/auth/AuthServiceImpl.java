@@ -10,9 +10,6 @@ import com.sinse.universe.model.user.UserServiceImpl;
 import com.sinse.universe.model.common.EmailServiceImpl;
 import com.sinse.universe.util.CodeGenerator;
 import com.sinse.universe.util.JwtUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,28 +39,10 @@ public class AuthServiceImpl {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public TokenPair reissueTokens(String refreshToken) {
-        Jws<Claims> jws;
-        String userId;
 
-        // 검증 실패 -> userId를 신뢰할 수 없기때문에 삭제 로직은 수행하지 않음
-        try {
-            jws = jwtUtil.validateToken(refreshToken);
-            userId = jws.getBody().getSubject();
-        } catch (JwtException e) {
-            throw new CustomException(ErrorCode.INVALID_REFRESHTOKEN, e);
-        }
-
-        // redis에 토큰 없음 -> 이미 존재하지 않으니 삭제 불필요
-        String storedToken = refreshTokenRepository.find(jws.getBody().getSubject())
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESHTOKEN, "redis에 존재하지 않는 refreshtoken"));
-
-        // 토큰 불일치 -> JWT는 유효하니 userId 신뢰 가능
-        log.debug("클라이언트가 보낸 refreshToken={}", refreshToken);
-        log.debug("Redis에 저장된 refreshToken={}", storedToken);
-        if (!storedToken.equals(refreshToken)) {
-            refreshTokenRepository.delete(storedToken);
-            throw new CustomException(ErrorCode.INVALID_REFRESHTOKEN, "redis에 저장된 refresh token과 일치하지 않습니다.");
-        }
+        // 1. Redis에서 refreshToken 조회
+        String userId = refreshTokenRepository.find(refreshToken)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESHTOKEN));
 
         // 검증 성공 시 새 토큰 발급 로직
         User user = userRepository.findById(Integer.parseInt(userId))
@@ -72,7 +51,8 @@ public class AuthServiceImpl {
         String newAccessToken = jwtUtil.createAccessToken(user.getId(), user.getRole().getName().name(), user.getEmail());
         String newRefreshToken = jwtUtil.createRefreshToken(user.getId());
 
-        refreshTokenRepository.save(userId, newRefreshToken, jwtUtil.getRefreshTokenTtl());
+        refreshTokenRepository.delete(refreshToken);
+        refreshTokenRepository.save(newRefreshToken, userId, jwtUtil.getRefreshTokenTtl());
 
         return new TokenPair(newAccessToken, newRefreshToken);
     }

@@ -11,19 +11,20 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RefreshTokenRepository {
 
+    //refreshToken:<refreshToken> <userId>
     private static final String PREFIX = "refreshToken:";
 
     private final StringRedisTemplate redisTemplate;
 
-    public void save(String userId, String token, Duration ttl){
-        redisTemplate.opsForValue().set(PREFIX + userId, token, ttl);
+    public void save(String token, String userId, Duration ttl){
+        redisTemplate.opsForValue().set(PREFIX + token, userId, ttl);
     }
 
-    public Optional<String> find(String userId){
-        return Optional.ofNullable(redisTemplate.opsForValue().get(PREFIX + userId));
+    public Optional<String> find(String token){
+        return Optional.ofNullable(redisTemplate.opsForValue().get(PREFIX + token));
     }
 
-    public void delete(String userId) {
-        redisTemplate.delete(PREFIX + userId);
+    public void delete(String token) {
+        redisTemplate.delete(PREFIX + token);
     }
 }

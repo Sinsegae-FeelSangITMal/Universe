@@ -41,7 +41,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String refreshToken = jwtUtil.createRefreshToken(userId);
 
         // refresh token을 쿠키와 redis에 저장
-        refreshTokenRepository.save(String.valueOf(userId), refreshToken, jwtUtil.getRefreshTokenTtl());
+        refreshTokenRepository.save(refreshToken, String.valueOf(userId), jwtUtil.getRefreshTokenTtl());
         ResponseCookie refreshCookie = CookieUtil.setResponseCookie(refreshToken, jwtUtil.getRefreshTokenTtl());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
