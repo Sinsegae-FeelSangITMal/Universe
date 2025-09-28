@@ -16,6 +16,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.Map;
 
 /**
@@ -41,6 +42,20 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new ApiResponse<>(true, "새 access token 발급 성공", null, Map.of("accessToken", tokenPair.accessToken())));
+    }
+
+    // 로그아웃 시 refreshtoken 제거
+    @PostMapping("/api/auth/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @CookieValue(name = "refreshToken") String refreshToken
+    ) {
+        authService.logout(refreshToken);
+        ResponseCookie cookie = CookieUtil.setResponseCookie("", Duration.ZERO);
+
+        log.debug("로그아웃 요청");
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new ApiResponse<>(true, "로그아웃 성공", null, null));
     }
 
     // 이메일 인증 코드 발송 api

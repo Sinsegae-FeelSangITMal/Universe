@@ -57,6 +57,10 @@ public class AuthServiceImpl {
         return new TokenPair(newAccessToken, newRefreshToken);
     }
 
+    public void logout(String refreshToken) {
+        refreshTokenRepository.delete(refreshToken);
+    }
+
     public void sendVerificationCode(String toEmail) {
         userService.checkDuplicateEmail(toEmail);  //이메일 중복확인
 
