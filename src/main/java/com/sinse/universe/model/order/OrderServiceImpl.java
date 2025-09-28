@@ -13,7 +13,7 @@ public class OrderServiceImpl implements OrderService {
         this.orderRepository = orderRepository;
     }
 
-    // 한 유저의 주문 목록 가져오기
+    // 유저의 주문 목록 요청
     @Override
     public List<OrderForEntResponse> getListByUserId(int userId) {
         return orderRepository.findByUser_Id(userId).stream()
@@ -21,15 +21,15 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
-    // 한 소속사의 아이템이 주문된 목록만 가져오기
+    // 소속사의 상품이 포함된 주문 목록 요청
     @Override
     public List<OrderForEntResponse> getListByPartnerId(int partnerId) {
         return orderRepository.findByPartnerId(partnerId).stream()
                 .map(OrderForEntResponse::from)
                 .toList();
     }
-
-    // 한 아티스트의 아이템이 주문된 목록만 가져오기
+    
+    // 아티스트의 상품이 포함된 주문 목록 요청
     @Override
     public List<OrderForEntResponse> getListByArtistId(int artistId) {
         return orderRepository.findByArtistId(artistId).stream()
@@ -37,6 +37,7 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
+    // 주문 상세 요청
     @Override
     public OrderForEntResponse getDetail(int orderId) {
         return orderRepository.findById(orderId)

@@ -1,5 +1,7 @@
 package com.sinse.universe.controller;
 
+import com.sinse.universe.dto.request.CartAddRequest;
+import com.sinse.universe.dto.request.CartUpdateRequest;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.CartResponse;
 import com.sinse.universe.model.cart.CartService;
@@ -9,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/api/carts")
 public class CartController {
     private final CartService cartService;
     public CartController(CartService cartService) {
@@ -22,16 +24,25 @@ public class CartController {
         return ApiResponse.success("장바구니 목록 요청", cartService.getCarts(userId));
     }
 
-    // 장바구니 항목 삭제 (미완성)
-    @DeleteMapping("/{cartId}")
-    public ResponseEntity<ApiResponse<List<CartResponse>>> delCarts(@PathVariable int cartId) {
-        return null;
+    // 장바구니 항목 추가
+    @PostMapping("/")
+    public ResponseEntity<?> addCart(@RequestBody CartAddRequest request) {
+        cartService.addCart(request);
+        return ApiResponse.success("장바구니에 추가");
     }
 
-    // 장바구니 항목 추가 (미완성)
-    @PostMapping("/{cartId}")
-    public ResponseEntity<ApiResponse<List<CartResponse>>> addCarts(@PathVariable int cartId) {
-        return null;
+    // 장바구니 항목 수정
+    @PutMapping("/{cartId}")
+    public ResponseEntity<?> updateCart(@PathVariable int cartId, @RequestBody CartUpdateRequest request) {
+        cartService.updateCart(cartId, request.qty());
+        return ApiResponse.success("장바구니 수정");
+    }
+
+    // 장바구니 항목 삭제
+    @DeleteMapping("/{cartId}")
+    public ResponseEntity<?> delCart(@PathVariable int cartId) {
+        cartService.delCart(cartId);
+        return ApiResponse.success("장바구니에서 삭제");
     }
 
 }
