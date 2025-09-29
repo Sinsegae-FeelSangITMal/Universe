@@ -2,6 +2,7 @@ package com.sinse.universe.model.user;
 
 import com.sinse.universe.domain.User;
 import com.sinse.universe.dto.request.UserJoinRequest;
+import com.sinse.universe.dto.response.UserResponse;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.enums.UserRole;
 import com.sinse.universe.enums.UserStatus;
@@ -54,5 +55,10 @@ public class UserServiceImpl {
                 .build();
 
         return userRepository.save(user);
+    }
+
+    public UserResponse getUserInfo(int userId) {
+        User user = userRepository.findById(userId).get();
+        return UserResponse.from(user);
     }
 }
