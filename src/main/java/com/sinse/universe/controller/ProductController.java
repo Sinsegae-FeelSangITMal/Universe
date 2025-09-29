@@ -8,7 +8,6 @@ import com.sinse.universe.dto.response.ProductMainResponse;
 import com.sinse.universe.dto.response.ProductResponse;
 import com.sinse.universe.model.product.ProductService;
 import com.sinse.universe.model.product.ProductUserService;
-import com.sinse.universe.model.product.ProductUserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,8 +15,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -121,5 +118,4 @@ public class ProductController {
         Page<ProductMainResponse> dtoPage = new PageImpl<>(content, pageable, page.getTotalElements());
         return ApiResponse.success("신규 상품 페이지 반환 성공", dtoPage);
     }
-
 }
