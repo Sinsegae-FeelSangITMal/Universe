@@ -2,14 +2,17 @@ package com.sinse.universe.model.stream;
 
 import com.sinse.universe.domain.Stream;
 import com.sinse.universe.dto.request.StreamRequest;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StreamService {
     public List<Stream> selectAll();
-    public Stream select(int streamId);;
-    public int regist(StreamRequest request);
-    public void update(int streamId, StreamRequest request);
+    public Stream select(int streamId);
+    public Stream regist(StreamRequest request) throws IOException;
+    public Stream update(int id, StreamRequest request) throws IOException;
     public void delete(int streamId);
     public List<Stream> findByArtistId(int streamId);
 }

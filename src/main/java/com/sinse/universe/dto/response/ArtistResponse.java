@@ -27,7 +27,6 @@ public record ArtistResponse(
                 artist.getInsta(),
                 artist.getYoutube(),
                 artist.getPartner() != null ? artist.getPartner().getName() : null
-                // , artist.getMembers() → 필요 없으니 제외
         );
     }
 }

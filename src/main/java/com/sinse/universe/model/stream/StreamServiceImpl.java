@@ -5,14 +5,19 @@ import com.sinse.universe.dto.request.StreamRequest;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.artist.ArtistRepository;
-import com.sinse.universe.model.product.ProductRepository;
 import com.sinse.universe.model.promotion.PromotionRepository;
-import com.sinse.universe.model.promotion.PromotionService;
-import com.sinse.universe.model.streamProduct.StreamProductRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class StreamServiceImpl implements StreamService {
@@ -20,16 +25,20 @@ public class StreamServiceImpl implements StreamService {
     private final StreamRepository streamRepository;
     private final ArtistRepository artistRepository;
     private final PromotionRepository promotionRepository;
-    private final ProductRepository productRepository;
-    private final StreamProductRepository streamProductRepository;
 
-    public StreamServiceImpl(StreamRepository streamRepository, ArtistRepository artistRepository, PromotionRepository promotionRepository, ProductRepository productRepository, StreamProductRepository streamProductRepository) {
+    public StreamServiceImpl(StreamRepository streamRepository,
+                             ArtistRepository artistRepository,
+                             PromotionRepository promotionRepository) {
         this.streamRepository = streamRepository;
         this.artistRepository = artistRepository;
         this.promotionRepository = promotionRepository;
-        this.productRepository = productRepository;
-        this.streamProductRepository = streamProductRepository;
     }
+
+    @Value("${upload.stream-dir}")
+    private String streamDir;
+
+    @Value("${upload.stream-url}")
+    private String streamUrl;
 
     @Override
     public List<Stream> selectAll() {
@@ -42,168 +51,120 @@ public class StreamServiceImpl implements StreamService {
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
     }
 
-//    @Override
-//    @Transactional
-//    public int regist(StreamRequest request) {
-//        Stream stream = new Stream();
-//        stream.setTitle(request.getTitle());
-//        stream.setTime(request.getTime());
-//        stream.setFanOnly(request.isFanOnly());
-//        stream.setProdLink(request.isProdLink());
-//        stream.setPrYn(request.isPrYn());
-//
-//        // 아티스트 조회
-//        Artist artist = artistRepository.findById(request.getArtist().getId())
-//                .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
-//        stream.setArtist(artist);
-//
-//        // 프로모션 처리
-//        if (request.isPrYn()) {
-//            if (request.getPromotion() == null) {
-//                throw new CustomException(ErrorCode.PROMOTION_REQUIRED);
-//            }
-//            Promotion promotion = promotionRepository.findById(request.getPromotion().getId())
-//                    .orElseThrow(() -> new CustomException(ErrorCode.PROMOTION_NOT_FOUND));
-//            stream.setPromotion(promotion);
-//        }
-//
-//        streamRepository.save(stream);
-//
-//        // ✅ 상품 연계 처리
-//        if (request.isProdLink()) {
-//            if (request.getProductIds() == null || request.getProductIds().isEmpty()) {
-//                throw new CustomException(ErrorCode.PRODUCT_REQUIRED);
-//            }
-//
-//            for (Integer productId : request.getProductIds()) {
-//                Product product = productRepository.findById(productId)
-//                        .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-//
-//                StreamProduct sp = new StreamProduct();
-//                sp.setStream(stream);
-//                sp.setProduct(product);
-//                streamProductRepository.save(sp);
-//            }
-//        }
-//
-//        return stream.getId();
-//    }
-//
-//    @Override
-//    @Transactional
-//    public void update(int streamId, StreamRequest request) {
-//        Stream stream = streamRepository.findById(streamId)
-//                .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
-//
-//        // ✅ 기본 정보 수정
-//        stream.setTitle(request.getTitle());
-//        stream.setTime(request.getTime());
-//        stream.setFanOnly(request.isFanOnly());
-//        stream.setProdLink(request.isProdLink());
-//        stream.setPrYn(request.isPrYn());
-//
-//        // ✅ 아티스트 수정
-//        Artist artist = artistRepository.findById(request.getArtist().getId())
-//                .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
-//        stream.setArtist(artist);
-//
-//        // ✅ 프로모션 수정
-//        if (request.isPrYn()) {
-//            if (request.getPromotion() == null) {
-//                throw new CustomException(ErrorCode.PROMOTION_REQUIRED);
-//            }
-//            Promotion promotion = promotionRepository.findById(request.getPromotion().getId())
-//                    .orElseThrow(() -> new CustomException(ErrorCode.PROMOTION_NOT_FOUND));
-//            stream.setPromotion(promotion);
-//        } else {
-//            // 프로모션 해제
-//            stream.setPromotion(null);
-//        }
-//
-//        // ✅ 상품 수정
-//        if (request.isProdLink()) {
-//            if (request.getProductIds() == null || request.getProductIds().isEmpty()) {
-//                throw new CustomException(ErrorCode.PRODUCT_REQUIRED);
-//            }
-//
-//            // 기존 stream_product 삭제
-//            streamProductRepository.deleteByStreamId(streamId);
-//
-//            // 새 product 등록
-//            for (Integer productId : request.getProductIds()) {
-//                Product product = productRepository.findById(productId)
-//                        .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-//
-//                StreamProduct sp = new StreamProduct();
-//                sp.setStream(stream);
-//                sp.setProduct(product);
-//                streamProductRepository.save(sp);
-//            }
-//        } else {
-//            // 상품 연계 해제
-//            streamProductRepository.deleteByStreamId(streamId);
-//        }
-//
-//        streamRepository.save(stream);
-//    }
-
+    // 라이브 등록
     @Override
-    public int regist(StreamRequest request) {
-        Artist artist = artistRepository.findById(request.getArtist().getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
-
+    @Transactional
+    public Stream regist(StreamRequest request) throws IOException {
         Stream stream = new Stream();
         stream.setTitle(request.getTitle());
         stream.setTime(request.getTime());
-        stream.setFanOnly(request.isFanOnly());
-        stream.setProdLink(request.isProdLink());
-        stream.setPrYn(request.isPrYn());
-        stream.setArtist(artist);
+        stream.setFanOnly(Boolean.TRUE.equals(request.getFanOnly()));
+        stream.setProdLink(Boolean.TRUE.equals(request.getProdLink()));
+        stream.setPrYn(Boolean.TRUE.equals(request.getPrYn()));
 
-        if (request.isPrYn() && request.getPromotion() != null) {
-            Promotion promotion = promotionRepository.findById(request.getPromotion().getId())
+        // 아티스트 매핑
+        if (request.getArtistId() != null) {
+            Artist artist = artistRepository.findById(request.getArtistId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
+            stream.setArtist(artist);
+        }
+
+        // 프로모션 매핑
+        if (request.getPromotionId() != null) {
+            Promotion promotion = promotionRepository.findById(request.getPromotionId())
                     .orElseThrow(() -> new CustomException(ErrorCode.PROMOTION_NOT_FOUND));
             stream.setPromotion(promotion);
         }
 
-        streamRepository.save(stream);
-        return stream.getId();
+        // Stream 새로운 라이브 먼저 저장해서 ID 확보
+        Stream saved = streamRepository.save(stream);
+
+        // 썸네일 저장
+        if (request.getThumb() != null && !request.getThumb().isEmpty()) {
+            String savedPath = saveFile(request.getThumb(), saved.getId());
+            saved.setThumb(savedPath);
+        }
+
+        return streamRepository.save(saved);
     }
 
+    // 라이브 수정
     @Override
-    public void update(int id, StreamRequest request) {
+    @Transactional
+    public Stream update(int id, StreamRequest request) throws IOException {
         Stream existing = streamRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
 
+        // 기본 필드 업데이트
         existing.setTitle(request.getTitle());
         existing.setTime(request.getTime());
-        existing.setFanOnly(request.isFanOnly());
-        existing.setProdLink(request.isProdLink());
-        existing.setPrYn(request.isPrYn());
+        existing.setFanOnly(Boolean.TRUE.equals(request.getFanOnly()));
+        existing.setProdLink(Boolean.TRUE.equals(request.getProdLink()));
+        existing.setPrYn(Boolean.TRUE.equals(request.getPrYn()));
 
-        if (request.isPrYn() && request.getPromotion() != null) {
-            Promotion promotion = promotionRepository.findById(request.getPromotion().getId())
+        // 아티스트 변경
+        if (request.getArtistId() != null) {
+            Artist artist = artistRepository.findById(request.getArtistId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
+            existing.setArtist(artist);
+        } else {
+            existing.setArtist(null);
+        }
+
+        // 프로모션 변경
+        if (Boolean.TRUE.equals(request.getPrYn()) && request.getPromotionId() != null) {
+            Promotion promotion = promotionRepository.findById(request.getPromotionId())
                     .orElseThrow(() -> new CustomException(ErrorCode.PROMOTION_NOT_FOUND));
             existing.setPromotion(promotion);
         } else {
-            existing.setPromotion(null);
+            existing.setPromotion(null); // SR_PR_YN=false → PM_ID=null
         }
 
-        streamRepository.save(existing);
+        // 썸네일 처리
+        MultipartFile newThumb = request.getThumb();
+
+        if (newThumb != null && !newThumb.isEmpty()) {
+            // 기존 썸네일 삭제
+            if (existing.getThumb() != null) {
+                String fileName = Paths.get(existing.getThumb()).getFileName().toString();
+                Path oldFile = Paths.get(streamDir, "s" + existing.getId(), fileName);
+                Files.deleteIfExists(oldFile);
+            }
+
+            // 새 파일 저장
+            String savedPath = saveFile(newThumb, existing.getId());
+            existing.setThumb(savedPath);
+        }
+
+        return existing; // @Transactional → flush 시 DB 반영
     }
 
-
+    // 라이브 삭제
     @Override
     public void delete(int streamId) {
         Stream stream = streamRepository.findById(streamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
-
         streamRepository.delete(stream);
     }
 
-    // 아티스트 ID로 조회
+    // 특정 아티스트의 라이브 조회
     @Override
     public List<Stream> findByArtistId(int artistId) {
         return streamRepository.findByArtistId(artistId);
     }
+
+    // 파일 저장 메서드
+    private String saveFile(MultipartFile file, Integer streamId) throws IOException {
+        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path dirPath = Paths.get(streamDir, "s" + streamId);
+        if (!Files.exists(dirPath)) {
+            Files.createDirectories(dirPath);
+        }
+        Path filePath = dirPath.resolve(filename);
+        file.transferTo(filePath.toFile());
+
+        // 현재
+        return streamUrl + "/s" + streamId + "/" + filename;
+    }
+
 }

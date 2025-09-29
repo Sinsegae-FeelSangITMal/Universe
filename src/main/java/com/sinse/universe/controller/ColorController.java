@@ -84,7 +84,7 @@ public class ColorController {
     public ResponseEntity<?> getColorByArtist(@PathVariable int artistId) {
         Color color = colorService.findByArtistId(artistId);
         if (color == null) {
-            return ResponseEntity.ok().body(null); // ✅ 200 OK + null
+            return ResponseEntity.ok().body(null); // 200 OK + null
         }
         return ResponseEntity.ok(ColorResponse.from(color));
     }

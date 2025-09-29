@@ -47,7 +47,7 @@ public class Artist {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PT_ID")
-    @JsonIgnore  // ✅ JSON 응답에서 제외
+    @JsonIgnore  // JSON 응답에서 제외
     private Partner partner;
 
     @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

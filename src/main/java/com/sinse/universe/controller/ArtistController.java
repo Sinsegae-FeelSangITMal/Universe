@@ -69,14 +69,13 @@ public class ArtistController {
         artist.setInsta(request.insta());
         artist.setYoutube(request.youtube());
 
-        // ✅ 삭제 플래그도 함께 전달
+        // 삭제 플래그도 함께 전달
         artistService.update(artist, mainImage, logoImage,
                 Boolean.TRUE.equals(request.deleteMainImage()),
                 Boolean.TRUE.equals(request.deleteLogoImage()));
 
         return ResponseEntity.ok(Map.of("result", "아티스트 수정 성공"));
     }
-
 
     // 아티스트 삭제
     @DeleteMapping("/ent/artists/{artistId}")

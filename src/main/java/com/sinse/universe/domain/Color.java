@@ -25,6 +25,6 @@ public class Color {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AR_ID", nullable = false)
-    @JsonIgnore  // ✅ 순환참조 방지
+    @JsonIgnore  // 순환참조 방지
     private Artist artist;
 }

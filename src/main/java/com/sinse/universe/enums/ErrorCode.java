@@ -37,6 +37,7 @@ public enum ErrorCode {
 
     // 라이브 상품 Stream Product
     STREAM_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 스트림 상품을 찾을 수 없습니다."),
+    FILE_DELETE_FAILED(HttpStatus.BAD_REQUEST,"파일을 삭제할 수 없습니다."),
 
     // 프로모션 상품 Promotion
     PROMOTION_NOT_FOUND(HttpStatus.NOT_FOUND,"프로모션을 찾을 수 없습니다."),

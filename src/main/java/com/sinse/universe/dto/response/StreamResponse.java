@@ -20,9 +20,9 @@ public class StreamResponse {
     private LocalDateTime time;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime endTime;   // ✅ SR_END_TIME
+    private LocalDateTime endTime;   // SR_END_TIME
 
-    private StreamStatus status;     // ✅ SR_STATUS
+    private StreamStatus status;     // SR_STATUS
 
     @JsonProperty("isAir")
     private boolean isAir;

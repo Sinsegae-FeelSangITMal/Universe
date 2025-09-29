@@ -1,39 +1,27 @@
 package com.sinse.universe.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 public class StreamRequest {
-    @NotBlank
     private String title;
 
-    @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm[:ss]")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm[:ss]")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")  // ← datetime-local 포맷
     private LocalDateTime time;
 
-    private boolean fanOnly;
-    private boolean prodLink;   // SR_PROD_LINK
-    private boolean prYn;       // SR_PR_YN
+    private Boolean fanOnly;
+    private Boolean prodLink;
+    private Boolean prYn;
 
-    private ArtistDto artist;   // { id: 1 }
-    private PromotionDto promotion; // { id: 2 } or null
-    private List<Integer> productIds; // [1,2,3]
+    private Integer artistId;
+    private Integer promotionId;
 
-    @Data
-    public static class ArtistDto {
-        private Integer id;
-    }
+    private MultipartFile thumb;
 
-    @Data
-    public static class PromotionDto {
-        private Integer id;
-    }
+    private Boolean deleteThumb;
 }
