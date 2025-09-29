@@ -8,8 +8,9 @@ import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.model.promotion.PromotionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -148,9 +149,13 @@ public class StreamServiceImpl implements StreamService {
     }
 
     // 특정 아티스트의 라이브 조회
+//    @Override
+//    public List<Stream> findByArtistId(int artistId) {
+//        return streamRepository.findByArtistId(artistId);
+//    }
     @Override
-    public List<Stream> findByArtistId(int artistId) {
-        return streamRepository.findByArtistId(artistId);
+    public Page<Stream> findByArtistId(int artistId, Pageable pageable) {
+        return streamRepository.findByArtistId(artistId, pageable);
     }
 
     // 파일 저장 메서드

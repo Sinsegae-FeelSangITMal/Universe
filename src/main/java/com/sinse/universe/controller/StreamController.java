@@ -5,6 +5,10 @@ import com.sinse.universe.dto.request.StreamRequest;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.StreamResponse;
 import com.sinse.universe.model.stream.StreamService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,16 +68,23 @@ public class StreamController {
     }
 
     // 특정 아티스트의 라이브 목록
-    @GetMapping(params = "artistId")
-    public ResponseEntity<ApiResponse<List<StreamResponse>>> getStreamsByArtist(
-            @RequestParam Integer artistId) {
-
-        List<StreamResponse> list = streamService.findByArtistId(artistId)
-                .stream()
-                .map(StreamResponse::from)
-                .toList();
-
-        return ApiResponse.success("특정 아티스트 라이브 목록 조회 성공", list);
+//    @GetMapping(params = "artistId")
+//    public ResponseEntity<ApiResponse<List<StreamResponse>>> getStreamsByArtist(
+//            @RequestParam Integer artistId) {
+//
+//        List<StreamResponse> list = streamService.findByArtistId(artistId)
+//                .stream()
+//                .map(StreamResponse::from)
+//                .toList();
+//
+//        return ApiResponse.success("특정 아티스트 라이브 목록 조회 성공", list);
+//    }
+    @GetMapping("/artists/{artistId}/streams")
+    public Page<StreamResponse> getStreamsByArtist(
+            @PathVariable int artistId,
+            @PageableDefault(size = 10, sort = "time", direction = Sort.Direction.DESC) Pageable pageable) {
+        return streamService.findByArtistId(artistId, pageable)
+                .map(StreamResponse::from);
     }
 }
 

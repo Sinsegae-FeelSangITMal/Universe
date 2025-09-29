@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sinse.universe.domain.Stream;
 import com.sinse.universe.enums.StreamStatus;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
 @Builder
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StreamResponse {
 
     private int id;
@@ -20,12 +21,13 @@ public class StreamResponse {
     private LocalDateTime time;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime endTime;   // SR_END_TIME
+    private LocalDateTime endTime;
 
-    private StreamStatus status;     // SR_STATUS
+    private StreamStatus status;
 
     @JsonProperty("isAir")
     private boolean isAir;
+
     private boolean fanOnly;
     private boolean prodLink;
     private boolean prYn;
@@ -40,6 +42,7 @@ public class StreamResponse {
     private Integer promotionId;
 
     public static StreamResponse from(Stream stream) {
+        if (stream == null) return null;
         return StreamResponse.builder()
                 .id(stream.getId())
                 .title(stream.getTitle())
