@@ -82,6 +82,12 @@ public class ColorController {
     // 특정 아티스트의 컬러 조회
     @GetMapping("/ent/artists/{artistId}/colors")
     public ResponseEntity<?> getColorByArtist(@PathVariable int artistId) {
-        return ResponseEntity.ok(colorService.findByArtistId(artistId));
+        Color color = colorService.findByArtistId(artistId);
+        if (color == null) {
+            return ResponseEntity.ok().body(null); // ✅ 200 OK + null
+        }
+        return ResponseEntity.ok(ColorResponse.from(color));
     }
+
+
 }

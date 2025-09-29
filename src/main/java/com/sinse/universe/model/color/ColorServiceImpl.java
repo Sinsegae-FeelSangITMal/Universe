@@ -64,11 +64,7 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public Color findByArtistId(int artistId) {
-
-        Color color = colorRepository.findByArtistId(artistId);
-        if (color == null) {
-            throw new CustomException(ErrorCode.COLOR_NOT_FOUND);
-        }
-        return color;
+        return colorRepository.findByArtistId(artistId);
+        // 컬러가 없으면 null 그대로 반환 → 예외 던지지 않음
     }
 }

@@ -3,6 +3,7 @@ package com.sinse.universe.model.artist;
 import com.sinse.universe.domain.Artist;
 import com.sinse.universe.domain.Partner;
 import com.sinse.universe.dto.request.ArtistRequest;
+import com.sinse.universe.dto.response.PartnerArtistResponse;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.partner.PartnerRepository;
@@ -23,12 +24,13 @@ import java.util.Set;
 
 @Slf4j
 @Service
-public class ArtistServiceImpl implements ArtistService{
+public class ArtistServiceImpl implements ArtistService {
 
     public final ArtistRepository artistRepository;
     private final PartnerRepository partnerRepository;
 
-    public ArtistServiceImpl(ArtistRepository artistRepository, PartnerRepository partnerRepository) {this.artistRepository = artistRepository;
+    public ArtistServiceImpl(ArtistRepository artistRepository, PartnerRepository partnerRepository) {
+        this.artistRepository = artistRepository;
         this.partnerRepository = partnerRepository;
     }
 
@@ -49,12 +51,6 @@ public class ArtistServiceImpl implements ArtistService{
 
     @Value("${upload.artist-logo-url}")
     private String artistLogoUrl;
-
-    @Value("${upload.artist-main-max-size}")
-    private long artistMainMaxSize;
-
-    @Value("${upload.artist-logo-max-size}")
-    private long artistLogoMaxSize;
 
     // 아티스트 전체 조회
     @Override
@@ -166,9 +162,17 @@ public class ArtistServiceImpl implements ArtistService{
         artistRepository.delete(artist);
     }
 
-    // 소속사(Partner) ID로 아티스트 조회
+    // 소속사(Partner) ID로 아티스트 정보 조회
     @Override
     public List<Artist> findByPartnerId(int partnerId) {
         return artistRepository.findByPartnerId(partnerId);
+    }
+
+    //소속사(Partner) ID로 아티스트 이름만 조회
+    @Override
+    public List<PartnerArtistResponse> selectByPartnerId(int partnerId) {
+        return artistRepository.findByPartner_Id(partnerId).stream()
+                .map(PartnerArtistResponse::from)
+                .toList();
     }
 }

@@ -38,6 +38,11 @@ public enum ErrorCode {
     // 413 PAYLOAD_TOO_LARGE
     FILE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "업로드 가능한 파일 크기를 초과했습니다."),
 
+    // 장바구니 Cart
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니에 해당 항목이 없습니다."),
+    CART_LIMIT(HttpStatus.CONFLICT, "유저당 구매 제한을 초과했습니다."),
+    CART_NO_STOCK(HttpStatus.CONFLICT, "상품 "),
+
     //--------------------------------------------------------------------------------------
     //      500 INTERNAL_SERVER_ERROR
     //--------------------------------------------------------------------------------------

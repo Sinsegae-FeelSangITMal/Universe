@@ -1,5 +1,6 @@
 package com.sinse.universe.model.artist;
 
+import com.sinse.universe.dto.response.PartnerArtistResponse;
 import com.sinse.universe.domain.Artist;
 import com.sinse.universe.dto.request.ArtistRequest;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +25,9 @@ public interface ArtistService {
     // 아티스트 삭제
     public void delete(int artistId);
 
-    // 소속사(Partner) ID로 아티스트 조회
+    // 소속사(Partner) ID로 아티스트 정보 조회
     public List<Artist> findByPartnerId(int partnerId);
+
+    // 소속사(Partner) ID로 아티스트 이름만 조회
+    public List<PartnerArtistResponse> selectByPartnerId (int partnerId);
 }
