@@ -7,13 +7,11 @@ import java.util.Optional;
  * OAuth2 provider별로 서로 다른 응답(JSON 구조)을 통일된 형태로 매핑
  * @param oauth_id provider 내 사용자의 고유 식별자
  * @param email    provider가 제공하는 email
- * @param name     provider가 제공하는 name
  */
 
 public record OAuth2UserInfo (
         String oauth_id,
-        String email,
-        String name
+        String email
 ){
     public static Optional<OAuth2UserInfo> of(String registrationId, Map<String, Object> attributes) {
         return switch (registrationId) {
@@ -25,8 +23,7 @@ public record OAuth2UserInfo (
     private static OAuth2UserInfo ofGoogle(Map<String, Object> attributes) {
         return new OAuth2UserInfo(
                 (String) attributes.get("sub"),
-                (String) attributes.get("email"),
-                (String) attributes.get("name")
+                (String) attributes.get("email")
         );
     }
 }

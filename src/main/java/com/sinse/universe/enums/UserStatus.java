@@ -1,8 +1,9 @@
 package com.sinse.universe.enums;
 
 public enum UserStatus {
-    ACTIVE("활성"),       // enum 생성자
-    INACTIVE("비활성");
+    ACTIVE("활성"),
+    INACTIVE("비활성"),
+    INCOMPLETE("추가 정보 필요");
 
     private final String description;
 

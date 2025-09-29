@@ -49,8 +49,7 @@ public class UserServiceImpl {
                 .provider(provider)
                 .email(userInfo.email())
                 .oauthId(userInfo.oauth_id())
-                .name(userInfo.name())
-                .status(UserStatus.ACTIVE)
+                .status(UserStatus.INCOMPLETE)
                 .role(roleService.findByName(UserRole.USER))
                 .build();
 

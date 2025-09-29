@@ -43,10 +43,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         User user = userRepository.findByProviderAndOauthId(provider, userInfo.oauth_id())
                 .orElseGet(()-> userService.createOAuthUser(provider, userInfo));
 
-        // 기존 회원이라면. 혹시 이메일, 닉네임이 변경되었다면 최신으로 수정
+        // 기존 회원이라면. 혹시 이메일이 변경되었다면 최신으로 수정
         // JPA dirty checking - 수정사항이 있으면 DB에 자동 반영
         user.setEmail(userInfo.email());
-        user.setName(userInfo.name());
 
         return new CustomOAuth2User(
                 user,

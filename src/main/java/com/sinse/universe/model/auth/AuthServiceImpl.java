@@ -1,9 +1,11 @@
 package com.sinse.universe.model.auth;
 
 import com.sinse.universe.domain.User;
+import com.sinse.universe.dto.request.OAuth2JoinRequest;
 import com.sinse.universe.dto.request.UserJoinRequest;
 import com.sinse.universe.dto.response.TokenPair;
 import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.enums.UserStatus;
 import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.user.UserRepository;
 import com.sinse.universe.model.user.UserServiceImpl;
@@ -99,4 +101,28 @@ public class AuthServiceImpl {
         User user = userService.createGeneralUser(form);
         log.info("회원가입 성공 user={}", user);
     }
+
+    @Transactional
+    public TokenPair joinOAuthUser(OAuth2JoinRequest request) {
+        User user = userRepository.findByProviderAndOauthId(request.provider(), request.oauthId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (!user.getStatus().equals(UserStatus.INCOMPLETE)) {
+            throw new CustomException(ErrorCode.ALREADY_REGISTERED_USER);
+        }
+
+        user.setName(request.nickname());
+        user.setStatus(UserStatus.ACTIVE);
+
+        String accessToken = jwtUtil.createAccessToken(user.getId(), user.getRole().getName().name(), user.getEmail());
+        String refreshToken = jwtUtil.createRefreshToken(user.getId());
+
+        refreshTokenRepository.save(refreshToken, String.valueOf(user.getId()), jwtUtil.getRefreshTokenTtl());
+
+        log.info("OAuth2 추가 정보 입력 완료 user={}", user);
+
+        return new TokenPair(accessToken, refreshToken);
+    }
+
+
 }

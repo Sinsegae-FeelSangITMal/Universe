@@ -2,6 +2,7 @@ package com.sinse.universe.controller;
 
 import com.sinse.universe.dto.request.EmailSendRequest;
 import com.sinse.universe.dto.request.EmailVerifyRequest;
+import com.sinse.universe.dto.request.OAuth2JoinRequest;
 import com.sinse.universe.dto.request.UserJoinRequest;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.TokenPair;
@@ -75,5 +76,15 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> join(@RequestBody @Valid UserJoinRequest request) {
         authService.join(request);
         return ApiResponse.success("회원가입이 완료되었습니다. 다시 로그인 해주세요.");
+    }
+
+    @PostMapping("/api/auth/oauth2/join")
+    public ResponseEntity<ApiResponse<Object>> joinOAuthUser(@RequestBody @Valid OAuth2JoinRequest request) {
+        TokenPair tokenPair = authService.joinOAuthUser(request);
+        ResponseCookie cookie = CookieUtil.setResponseCookie(tokenPair.refreshToken(), jwtUtil.getRefreshTokenTtl());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new ApiResponse<>(true, "회원가입이 완료되었습니다.", null, Map.of("accessToken", tokenPair.accessToken())));
     }
 }

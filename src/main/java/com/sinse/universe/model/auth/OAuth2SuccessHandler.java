@@ -1,5 +1,6 @@
 package com.sinse.universe.model.auth;
 
+import com.sinse.universe.enums.UserStatus;
 import com.sinse.universe.util.CookieUtil;
 import com.sinse.universe.util.JwtUtil;
 import jakarta.servlet.ServletException;
@@ -32,6 +33,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // oauth provider가 전달한 유저 정보가 Authentication에 담긴 상태(구현체인 OAuth2AuthenticationToken)
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();  // CustomOAuth2UserService에서 반환해준 객체
+
+        // 추가 정보(닉네임 등)를 받지 않은 유저
+        if(oAuth2User.getUser().getStatus().equals(UserStatus.INCOMPLETE)){
+            String provider = oAuth2User.getUser().getProvider();
+            String oauthId = oAuth2User.getUser().getOauthId();
+            String redirectUrl = baseUrl + String.format("/oauth-join?provider=%s&oauthId=%s", provider, oauthId);
+            response.sendRedirect(redirectUrl);
+            return;
+        }
 
         // JWT 토큰 발급
         int userId = oAuth2User.getUser().getId();
