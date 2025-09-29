@@ -33,7 +33,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
         select distinct p
         from Product p
         join p.productImageList pi
-        where p.status = "active"
+        where p.status = 'ACTIVE'
           and pi.role = "main"
         order by p.registDate desc, p.id desc
         """)

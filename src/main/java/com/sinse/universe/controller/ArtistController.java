@@ -3,7 +3,9 @@ package com.sinse.universe.controller;
 import com.sinse.universe.domain.Artist;
 import com.sinse.universe.domain.Partner;
 import com.sinse.universe.dto.request.ArtistRequest;
+import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.ArtistResponse;
+import com.sinse.universe.dto.response.PartnerArtistResponse;
 import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.model.artist.ArtistService;
 import com.sinse.universe.model.partner.PartnerRepository;
@@ -91,5 +93,10 @@ public class ArtistController {
                 .stream()
                 .map(ArtistResponse::from)
                 .toList();
+    }
+
+    @GetMapping("/ent/artists/partner/{partnerId}")
+    public ResponseEntity<ApiResponse<List<PartnerArtistResponse>>> getArtists(@PathVariable int partnerId) {
+        return ApiResponse.success("한 소속사의 아티스트 목록", artistService.selectByPartnerId(partnerId));
     }
 }

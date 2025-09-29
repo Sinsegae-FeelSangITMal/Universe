@@ -28,7 +28,7 @@ public class Product {
     @Column(name = "PD_PRICE", nullable = false)
     private Integer price;
 
-    @Column(name = "PD_REGIST_DATE")
+    @Column(name = "PD_REGIST_DATE", nullable = false, updatable = false, insertable = false)
     private LocalDateTime registDate;
 
     @Column(name = "PD_OPEN_DATE")
