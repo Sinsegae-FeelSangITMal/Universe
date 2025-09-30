@@ -43,6 +43,9 @@ public enum ErrorCode {
     CART_LIMIT(HttpStatus.CONFLICT, "유저당 구매 제한을 초과했습니다."),
     CART_NO_STOCK(HttpStatus.CONFLICT, "상품 "),
 
+    // 유저 User
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다"),
+
     //--------------------------------------------------------------------------------------
     //      500 INTERNAL_SERVER_ERROR
     //--------------------------------------------------------------------------------------
