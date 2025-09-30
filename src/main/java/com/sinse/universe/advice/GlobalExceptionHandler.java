@@ -5,11 +5,13 @@ import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.exception.CustomException;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -77,6 +79,14 @@ public class GlobalExceptionHandler {
         return ApiResponse.error(ErrorCode.FILE_TOO_LARGE, Map.of(
                 "hint", "파일이 너무 큽니다. (최대 10MB)"
         ));
+    }
+
+    /**
+     * 정적 리소스(이미지 등) 미존재 시: 404만 내리고 로그는 남기지 않음
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Void> handleNoStaticResource(NoResourceFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     /**

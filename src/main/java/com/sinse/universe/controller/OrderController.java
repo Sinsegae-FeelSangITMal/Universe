@@ -51,10 +51,5 @@ public class OrderController {
         return ApiResponse.success("주문 상세 요청", orderService.getDetail(orderId));
     }
 
-    // 한 소속사의 아티스트 목록 요청
-    @GetMapping("/ent/orders/artists/{partnerId}")
-    public ResponseEntity<ApiResponse<List<PartnerArtistResponse>>> getArtists(@PathVariable int partnerId) {
-        return ApiResponse.success("한 소속사의 아티스트 목록", artistService.selectByPartnerId(partnerId));
-    }
 
 }

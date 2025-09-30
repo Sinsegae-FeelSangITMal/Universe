@@ -10,8 +10,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ArtistRepository extends JpaRepository<Artist, Integer> {
+import java.util.List;
 
+public interface ArtistRepository extends JpaRepository<Artist, Integer> {
     // 특정 소속사의 모든 아티스트 조회 - 응답 객체로 반환
     public List<Artist> findByPartner_Id (int partnerId);
 

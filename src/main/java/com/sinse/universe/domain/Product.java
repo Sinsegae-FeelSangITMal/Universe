@@ -26,7 +26,10 @@ public class Product {
     private String description;
 
     @Column(name = "PD_PRICE", nullable = false)
-    private Integer price;
+    private int price;
+
+    @Column(name = "PD_REGIST_DATE", nullable = false, updatable = false, insertable = false)
+    private LocalDateTime registDate;
 
     @Column(name = "PD_OPEN_DATE")
     private LocalDateTime openDate;

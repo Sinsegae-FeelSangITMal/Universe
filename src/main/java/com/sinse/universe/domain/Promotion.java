@@ -26,16 +26,16 @@ public class Promotion {
     private String detailImage;
 
     @Column(name = "PM_PRICE", nullable = false)
-    private Integer price;
+    private int price;
 
     @Column(name = "PM_FAN_ONLY")
     private Boolean fanOnly = false;
 
     @Column(name = "PM_STOCK_QTY")
-    private Integer stockQuantity = 0;
+    private int stockQuantity = 0;
 
     @Column(name = "PM_LIMIT_PER_USER")
-    private Integer limitPerUser = 0;
+    private int limitPerUser = 0;
 
     @Column(name = "PM_COUPON", nullable = false)
     private String coupon;
