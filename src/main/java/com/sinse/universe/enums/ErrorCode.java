@@ -4,18 +4,21 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
 
-    //--------------------------------------------------------------------------------------
-    //      400 BAD_REQUEST
-    //--------------------------------------------------------------------------------------
+    // 400 BAD_REQUEST
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "이미 가입된 이메일입니다."),
     PASSWORD_CONFIRM_NOT_MATCH(HttpStatus.BAD_REQUEST, "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
     ROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "잘못된 권한명입니다."),
-
+    USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."),
+    ALREADY_REGISTERED_USER(HttpStatus.BAD_REQUEST, "이미 가입한 회원입니다."),
     //verification = 이메일 인증
     VERIFICATION_CODE_INVALID(HttpStatus.BAD_REQUEST, "인증 코드가 올바르지 않습니다."),
     VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "인증 코드가 만료되었습니다."),
     NOT_VERIFIED_EMAIL(HttpStatus.BAD_REQUEST, "인증되지 않은 이메일입니다. 인증을 시도해주세요"),
+
+    // 401
+    INVALID_REFRESHTOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 refresh token입니다."),
+
 
     // 소속사 Partner
     PARTNER_NOT_FOUND(HttpStatus.NOT_FOUND, "파트너를 찾을 수 없습니다."),
@@ -52,13 +55,18 @@ public enum ErrorCode {
     // 413 PAYLOAD_TOO_LARGE
     FILE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "업로드 가능한 파일 크기를 초과했습니다."),
 
+    // 장바구니 Cart
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니에 해당 항목이 없습니다."),
+    CART_LIMIT(HttpStatus.CONFLICT, "유저당 구매 제한을 초과했습니다."),
+    CART_NO_STOCK(HttpStatus.CONFLICT, "상품 "),
+
     //--------------------------------------------------------------------------------------
     //      500 INTERNAL_SERVER_ERROR
     //--------------------------------------------------------------------------------------
     MAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "메일 전송에 실패했습니다."),
 
-    UNHANDLED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "Unhandled Exception 발생"),
-    ;
+    UNHANDLED_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "Unhandled Exception 발생");
+
 
     private final HttpStatus httpStatus;
     private final String detail;

@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class Product {
 
-    public enum ProductStatus { active, inactive } // DB 값과 동일 소문자
+    public enum ProductStatus { ACTIVE, INACTIVE } // DB 값과 동일 소문자
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,10 +38,10 @@ public class Product {
     private Integer stockQuantity = 0;
 
     @Column(name = "PD_LIMIT_PER_USER")
-    private Integer limitPerUser = 0;
+    private Integer limitPerUser = -1;                  // -1: 갯수 제한 없음     0:
 
     @Enumerated(EnumType.STRING)
-    @Column(name="pd_status")
+    @Column(name="PD_STATUS")
     private ProductStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
