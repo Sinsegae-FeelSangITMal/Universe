@@ -34,7 +34,6 @@ public class UploadManager {
         return newFilename; // 파일명을 서비스단에 돌려줌
     }
 
-
     // 디렉토리 생성 메서드 정의
     // createDirectory("c://upload"), createDirectory("p23")
     public static Path createDirectory(String path) throws IOException {
