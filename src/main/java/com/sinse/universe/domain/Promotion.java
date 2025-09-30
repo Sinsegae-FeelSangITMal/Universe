@@ -29,8 +29,8 @@ public class Promotion {
     @Column(name = "PM_IMG", length = 255)
     private String img;
 
-    @Column(name = "PM_PRICE", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "PM_PRICE", nullable = false)
+    private int price;
 
     @Column(name = "PM_FAN_ONLY", nullable = false)
     private boolean fanOnly = false;

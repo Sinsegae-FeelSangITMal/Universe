@@ -9,7 +9,7 @@ public record PromotionResponse(
         String name,
         String description,
         String img,
-        BigDecimal price,
+        Integer price,
         boolean fanOnly,
         int stockQty,
         int limitPerUser,
