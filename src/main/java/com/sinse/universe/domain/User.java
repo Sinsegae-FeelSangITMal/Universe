@@ -34,7 +34,7 @@ public class User {
     @Column(name = "UR_OAUTH_ID")
     private String oauthId;
 
-    @Column(name = "UR_NAME", nullable = false)
+    @Column(name = "UR_NAME")
     private String name;
 
     @Column(name = "UR_STATUS", nullable = false)
