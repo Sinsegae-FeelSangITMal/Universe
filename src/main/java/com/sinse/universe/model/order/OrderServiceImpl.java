@@ -9,6 +9,7 @@ import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.enums.MembershipStatus;
 import com.sinse.universe.enums.OrderStatus;
 import com.sinse.universe.exception.CustomException;
+import com.sinse.universe.model.cart.CartRepository;
 import com.sinse.universe.model.membership.MembershipRepository;
 import com.sinse.universe.model.product.ProductRepository;
 import com.sinse.universe.model.user.UserRepository;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -29,11 +31,13 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final MembershipRepository membershipRepository;
-    public OrderServiceImpl(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, MembershipRepository membershipRepository) {
+    private final CartRepository cartRepository;
+    public OrderServiceImpl(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, MembershipRepository membershipRepository, CartRepository cartRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.membershipRepository = membershipRepository;
+        this.cartRepository = cartRepository;
     }
 
     // 판매자 페이지) 소속사의 상품이 포함된 주문 목록 요청
@@ -134,6 +138,14 @@ public class OrderServiceImpl implements OrderService {
             Product product = productRepository.findById(productRequest.productId())
                     .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
+            // 재고 체크
+            if (product.getStockQuantity() < productRequest.qty()) {
+                throw new CustomException(ErrorCode.OUT_OF_STOCK);
+            }
+
+            // 재고 차감
+            product.setStockQuantity(product.getStockQuantity() - productRequest.qty());
+
             OrderProduct op = new OrderProduct();
             op.setOrder(order);
             op.setProduct(product);
@@ -148,9 +160,7 @@ public class OrderServiceImpl implements OrderService {
                 membership.setUser(user);
                 membership.setArtist(product.getArtist());
 
-                // 시작일: 현재
                 LocalDate start = LocalDate.now();
-                // 종료일: 1년 + 1일 뒤 자정
                 LocalDate end = start.plusYears(1);
 
                 membership.setStartDate(start.atStartOfDay());
@@ -160,12 +170,19 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
+
         // 한 번만 save 호출 → Order + OrderProducts 함께 저장
         orderRepository.save(order);
 
+        // 장바구니에서 삭제
+        List<Integer> productIds = request.items().stream()
+                .map(OrderSubmitRequest.OrderProductRequest::productId)
+                .toList();
+
+        cartRepository.deleteByUser_IdAndProduct_IdIn(user.getId(), productIds);
+
         return order.getId();
     }
-
 
     // 주문 번호 생성 메서드 (랜덤값 이용)
     private String generateOrderNo() {

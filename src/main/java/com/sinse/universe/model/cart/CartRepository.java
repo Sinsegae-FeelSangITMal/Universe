@@ -11,4 +11,6 @@ public interface CartRepository extends JpaRepository<Cart, Integer> {
     public List<Cart> findByUser_Id(int userId);
     // 데이터 존재 검증
     public Optional<Cart> findByUser_IdAndProduct_Id(int userId, int productId);
+    // 장바구니에서 삭제
+    public void deleteByUser_IdAndProduct_IdIn(int userId, List<Integer> productIds);
 }

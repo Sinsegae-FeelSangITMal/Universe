@@ -12,7 +12,7 @@ public record OrderProductForEntResponse(
 ) {
     public static OrderProductForEntResponse from(OrderProduct op) {
         return new OrderProductForEntResponse(
-                op.getId(),
+                op.getQty(),
                 op.getProduct().getName(),
                 op.getProduct().getArtist().getName()
         );
