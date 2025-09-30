@@ -10,4 +10,7 @@ import java.util.List;
 public interface ProductUserService {
 
     public Page<Product> pageNewProducts(Pageable pageable);
+    Page<Product> getProductsByArtist(Pageable pageable, int artistId);
+    Page<Product> getProductsByArtistAndCategory(Pageable pageable, int artistId, Integer categoryId);
+
 }

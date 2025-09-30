@@ -118,4 +118,21 @@ public class ProductController {
         Page<ProductMainResponse> dtoPage = new PageImpl<>(content, pageable, page.getTotalElements());
         return ApiResponse.success("신규 상품 페이지 반환 성공", dtoPage);
     }
+
+    @GetMapping("/products/{artistId}")
+    public ResponseEntity<ApiResponse<Page<ProductMainResponse>>> getProducts(
+            @PathVariable int artistId,
+            @RequestParam(required = false) Integer categoryId,
+            @PageableDefault(size = 24, sort = "registDate", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Page<Product> page = productUserService.getProductsByArtistAndCategory(pageable, artistId, categoryId);
+
+        List<ProductMainResponse> content = page.getContent().stream()
+                .map(ProductMainResponse::from)
+                .toList();
+
+        Page<ProductMainResponse> dtoPage = new PageImpl<>(content, pageable, page.getTotalElements());
+        return ApiResponse.success("상품 리스트 페이지 반환 성공", dtoPage);
+    }
 }

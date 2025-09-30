@@ -41,4 +41,16 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             Pageable pageable
     );
 
+    // 그대로 사용
+    @Query("""
+  select p
+  from Product p
+  where p.artist.id = :artistId
+    and (:categoryId is null or p.category.id = :categoryId)
+""")
+    Page<Product> findByArtistAndOptionalCategory(
+            @Param("artistId") int artistId,
+            @Param("categoryId") Integer categoryId,
+            Pageable pageable);
+
 }

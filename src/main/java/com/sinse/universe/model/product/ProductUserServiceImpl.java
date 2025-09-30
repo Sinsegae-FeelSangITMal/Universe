@@ -24,4 +24,14 @@ public class ProductUserServiceImpl implements ProductUserService{
     public Page<Product> pageNewProducts(Pageable pageable) {
         return productRepository.findLatestActiveWithMain(pageable);
     }
+
+    @Override
+    public Page<Product> getProductsByArtist(Pageable pageable, int artistId) {
+        return productRepository.findByArtistAndOptionalCategory(artistId, null, pageable);
+    }
+
+    @Override
+    public Page<Product> getProductsByArtistAndCategory(Pageable pageable, int artistId, Integer categoryId) {
+        return productRepository.findByArtistAndOptionalCategory(artistId, categoryId, pageable);
+    }
 }
