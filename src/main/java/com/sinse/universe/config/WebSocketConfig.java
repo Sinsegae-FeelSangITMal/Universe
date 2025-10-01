@@ -1,6 +1,9 @@
 package com.sinse.universe.config;
 
+import com.sinse.universe.chat.ChatPreFilterInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -8,22 +11,23 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker   // STOMP 사용 선언
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // 클라이언트가 구독할 prefix
-        registry.enableSimpleBroker("/topic");
-
-        // 클라이언트에서 메시지를 보낼 때 붙이는 prefix
-        registry.setApplicationDestinationPrefixes("/app");
-    }
+    private final ChatPreFilterInterceptor chatPreFilterInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // 클라이언트가 연결할 endpoint
-        registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*") // CORS 허용
-                .withSockJS(); // SockJS 지원
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
+    }
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.setApplicationDestinationPrefixes("/app");
+        registry.enableSimpleBroker("/topic", "/queue");
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(chatPreFilterInterceptor);
     }
 }
