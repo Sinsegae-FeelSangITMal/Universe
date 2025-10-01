@@ -17,9 +17,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
 @RestController
 @RequestMapping("/api")
 public class ArtistController {
+
     private final ArtistService artistService;
     private final ArtistRepository artistRepository;
     private final PartnerRepository partnerRepository;
@@ -95,6 +97,7 @@ public class ArtistController {
                 .toList();
     }
 
+    // 한 소속사의 아티스트 목록 요청
     @GetMapping("/ent/artists/partner/{partnerId}")
     public ResponseEntity<ApiResponse<List<PartnerArtistResponse>>> getArtists(@PathVariable int partnerId) {
         return ApiResponse.success("한 소속사의 아티스트 목록", artistService.selectByPartnerId(partnerId));
