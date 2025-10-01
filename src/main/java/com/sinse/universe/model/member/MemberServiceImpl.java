@@ -118,13 +118,13 @@ public class MemberServiceImpl implements MemberService {
         try {
             Files.deleteIfExists(filePath); // 파일 삭제
 
-            // ✅ 상위 폴더(m + memberId) 삭제 시도
+            // 상위 폴더(m + memberId) 삭제 시도
             Path memberDir = filePath.getParent();
             if (memberDir != null && Files.isDirectory(memberDir)) {
                 Files.deleteIfExists(memberDir);
             }
 
-            // ✅ 아티스트 폴더(a + artistId)도 비었으면 삭제 (선택)
+            // 아티스트 폴더(a + artistId)도 비었으면 삭제 (선택)
             Path artistDir = memberDir.getParent();
             if (artistDir != null && Files.isDirectory(artistDir) &&
                     Files.list(artistDir).findAny().isEmpty()) {
