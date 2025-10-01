@@ -26,7 +26,10 @@ public class Product {
     private String description;
 
     @Column(name = "PD_PRICE", nullable = false)
-    private Integer price;
+    private int price;
+
+    @Column(name = "PD_REGIST_DATE", nullable = false, updatable = false, insertable = false)
+    private LocalDateTime registDate;
 
     @Column(name = "PD_OPEN_DATE")
     private LocalDateTime openDate;
@@ -35,10 +38,10 @@ public class Product {
     private Boolean fanOnly = false;
 
     @Column(name = "PD_STOCK_QTY")
-    private Integer stockQuantity = 0;
+    private int stockQuantity = 0;
 
     @Column(name = "PD_LIMIT_PER_USER")
-    private Integer limitPerUser = -1;                  // -1: 갯수 제한 없음     0:
+    private int limitPerUser = -1;                  // -1: 갯수 제한 없음     0:
 
     @Enumerated(EnumType.STRING)
     @Column(name="PD_STATUS")

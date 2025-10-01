@@ -5,7 +5,6 @@ import com.sinse.universe.domain.Order;
 import com.sinse.universe.enums.OrderStatus;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public record OrderForEntResponse(
@@ -19,7 +18,7 @@ public record OrderForEntResponse(
         @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
         LocalDateTime refundDate,
         String userName,
-        List<OrderProductResponse> orderProducts
+        List<OrderProductForEntResponse> orderProducts
         ) {
     public static OrderForEntResponse from(Order o) {
         return new OrderForEntResponse(
@@ -31,7 +30,7 @@ public record OrderForEntResponse(
                 o.getRefundDate(),
                 o.getUser().getName(),
                 o.getOrderProducts().stream()
-                    .map(OrderProductResponse::from)
+                    .map(OrderProductForEntResponse::from)
                     .toList()
         );
     }

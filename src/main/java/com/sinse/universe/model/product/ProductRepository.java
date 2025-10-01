@@ -1,6 +1,7 @@
 package com.sinse.universe.model.product;
 
 import com.sinse.universe.domain.Product;
+import com.sinse.universe.domain.ProductImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,29 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     // 아티스트의 상품 조회
     List<Product> findByArtistId(int artistId);
+
+    @Query("""
+        select distinct p
+        from Product p
+        join p.productImageList pi
+        where p.status = 'ACTIVE'
+          and pi.role = "main"
+        order by p.registDate desc, p.id desc
+        """)
+    Page<Product> findLatestActiveWithMain(
+            Pageable pageable
+    );
+
+    // 그대로 사용
+    @Query("""
+  select p
+  from Product p
+  where p.artist.id = :artistId
+    and (:categoryId is null or p.category.id = :categoryId)
+""")
+    Page<Product> findByArtistAndOptionalCategory(
+            @Param("artistId") int artistId,
+            @Param("categoryId") Integer categoryId,
+            Pageable pageable);
+
 }

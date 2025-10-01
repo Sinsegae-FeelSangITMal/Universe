@@ -29,10 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.debug("jwtAuthFilter 진입");
-
         String authz = request.getHeader("Authorization");
-        log.debug("authz 출력={}", authz);
 
         // accessToken이 있는 경우만 검증, 없으면 필터를 그냥 거쳐서 Authentication이 없어서 시큐리티가 접근을 막는다.
         if (authz != null && authz.startsWith("Bearer ") && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -63,7 +60,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
 
-        log.debug("jwt 필터 빠져나감");
         filterChain.doFilter(request, response);
     }
 

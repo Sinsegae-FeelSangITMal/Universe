@@ -15,7 +15,7 @@ public class OrderProduct {
     private int qty = 1;
     @Column(name = "OR_PD_PRICE", nullable = false)
     private int price;
-    @Column(name = "OR_PD_TOTAL")
+    @Column(name = "OR_PD_TOTAL", insertable = false, updatable = false)
     private int total;
 
     @ManyToOne(fetch = FetchType.LAZY)
