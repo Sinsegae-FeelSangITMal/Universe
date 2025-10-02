@@ -70,7 +70,7 @@ public class ArtistServiceImpl implements ArtistService {
         Partner partner = partnerRepository.findById(request.partnerId())
                 .orElseThrow(() -> new CustomException(ErrorCode.PARTNER_NOT_FOUND));
 
-        // ✅ 이름 중복 검사
+        // 이름 중복 검사
         if (artistRepository.existsByName(request.name())) {
             throw new CustomException(ErrorCode.ARTIST_NAME_DUPLICATED);
         }
@@ -112,7 +112,7 @@ public class ArtistServiceImpl implements ArtistService {
                 Files.deleteIfExists(oldPath);
             } catch (IOException e) {
                 log.error("메인 이미지 삭제 실패 path={}", oldPath, e);
-                // ❗ API 전체 실패 대신 로그만 남기고 DB만 갱신
+                // API 전체 실패 대신 로그만 남기고 DB만 갱신
             }
             existing.setImg(null);
         }
@@ -124,7 +124,7 @@ public class ArtistServiceImpl implements ArtistService {
                 Files.deleteIfExists(oldPath);
             } catch (IOException e) {
                 log.error("로고 이미지 삭제 실패 path={}", oldPath, e);
-                // ❗ 동일하게 로그만 남기고 진행
+                // 동일하게 로그만 남기고 진행
             }
             existing.setLogoImg(null);
         }

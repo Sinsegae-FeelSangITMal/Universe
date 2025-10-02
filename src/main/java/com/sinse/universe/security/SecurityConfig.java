@@ -35,10 +35,12 @@ public class SecurityConfig {
                         //로그인 관련 (OAuth2, 토큰 재발급 등)
                         .requestMatchers("/oauth2/**", "/api/auth/**").permitAll()
                         //.requestMatchers().permitAll() //API 요청 중 인증이 필요없는 공개 api
-//                        .requestMatchers("/api/**").authenticated()
+
+                       // .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()   // 개발할때만 잠깐 열어둘 용도로 모든 요청 허용
+
 //                        .anyRequest().authenticated()
-                )
+               )
                 //스프링이 자동으로 "로그인 요청 -> 리다이렉트 -> 토큰 교환 -> 사용자 정보 조회" 과정을 처리해줌
                 .oauth2Login(oauth2->oauth2    //oauth2 로그인 기능 활성화
                         .successHandler(oAuth2SuccessHandler)

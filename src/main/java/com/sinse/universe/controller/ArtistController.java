@@ -17,9 +17,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
 @RestController
 @RequestMapping("/api")
 public class ArtistController {
+
     private final ArtistService artistService;
     private final ArtistRepository artistRepository;
     private final PartnerRepository partnerRepository;
@@ -69,14 +71,13 @@ public class ArtistController {
         artist.setInsta(request.insta());
         artist.setYoutube(request.youtube());
 
-        // ✅ 삭제 플래그도 함께 전달
+        // 삭제 플래그도 함께 전달
         artistService.update(artist, mainImage, logoImage,
                 Boolean.TRUE.equals(request.deleteMainImage()),
                 Boolean.TRUE.equals(request.deleteLogoImage()));
 
         return ResponseEntity.ok(Map.of("result", "아티스트 수정 성공"));
     }
-
 
     // 아티스트 삭제
     @DeleteMapping("/ent/artists/{artistId}")
@@ -95,6 +96,7 @@ public class ArtistController {
                 .toList();
     }
 
+    // 한 소속사의 아티스트 목록 요청
     @GetMapping("/ent/artists/partner/{partnerId}")
     public ResponseEntity<ApiResponse<List<PartnerArtistResponse>>> getArtists(@PathVariable int partnerId) {
         return ApiResponse.success("한 소속사의 아티스트 목록", artistService.selectByPartnerId(partnerId));

@@ -29,6 +29,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
   """)
     List<Product> findWithRefsByIds(@Param("ids") List<Integer> ids);
 
+    // 아티스트의 상품 조회
+    List<Product> findByArtistId(int artistId);
+
     @Query("""
         select distinct p
         from Product p

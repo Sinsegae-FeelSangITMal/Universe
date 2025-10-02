@@ -369,4 +369,9 @@ public class ProductServiceImpl implements ProductService {
         rows.sort(Comparator.comparing(p -> order.get(p.getId())));
         return new PageImpl<>(rows, pageable, idPage.getTotalElements());
     }
+
+    @Override
+    public List<Product> findByArtistId(int artistId) {
+        return productRepository.findByArtistId(artistId);
+    }
 }

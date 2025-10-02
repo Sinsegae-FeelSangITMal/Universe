@@ -26,7 +26,7 @@ public class Partner {
     private String file;
 
     @OneToMany(mappedBy = "partner", fetch = FetchType.LAZY)
-    @JsonIgnore  // ✅ 순환참조 방지
+    @JsonIgnore  // 순환참조 방지
     private List<Artist> artists;
 }
 

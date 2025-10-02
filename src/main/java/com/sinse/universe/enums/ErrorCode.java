@@ -35,6 +35,20 @@ public enum ErrorCode {
     // 아티스트 커스텀 컬러 Artist_bg_color
     COLOR_NOT_FOUND(HttpStatus.NOT_FOUND, "컬러를 찾을 수 없습니다."),
 
+    // 라이브 Stream
+    STREAM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스트림을 찾을 수 없습니다."),
+
+    // 라이브 상품 Stream Product
+    STREAM_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND,"해당 스트림 상품을 찾을 수 없습니다."),
+    FILE_DELETE_FAILED(HttpStatus.BAD_REQUEST,"파일을 삭제할 수 없습니다."),
+
+    // 프로모션 상품 Promotion
+    PROMOTION_NOT_FOUND(HttpStatus.NOT_FOUND,"프로모션을 찾을 수 없습니다."),
+
+    PRODUCT_REQUIRED(HttpStatus.BAD_REQUEST, "상품을 선택해야 합니다"),
+    PROMOTION_REQUIRED(HttpStatus.BAD_REQUEST, "프로모션 상품을 선택해야 합니다"),
+
+
     // 404 NOT_FOUND
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다"),
 
@@ -45,6 +59,9 @@ public enum ErrorCode {
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니에 해당 항목이 없습니다."),
     CART_LIMIT(HttpStatus.CONFLICT, "유저당 구매 제한을 초과했습니다."),
     CART_NO_STOCK(HttpStatus.CONFLICT, "상품 "),
+
+    // 상품 Product
+    OUT_OF_STOCK(HttpStatus.CONFLICT, "재고가 부족합니다."),
 
     //--------------------------------------------------------------------------------------
     //      500 INTERNAL_SERVER_ERROR

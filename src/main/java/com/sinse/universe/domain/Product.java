@@ -38,10 +38,10 @@ public class Product {
     private Boolean fanOnly = false;
 
     @Column(name = "PD_STOCK_QTY")
-    private Integer stockQuantity = 0;
+    private int stockQuantity = 0;
 
     @Column(name = "PD_LIMIT_PER_USER")
-    private Integer limitPerUser = -1;                  // -1: 갯수 제한 없음     0:
+    private int limitPerUser = -1;                  // -1: 갯수 제한 없음     0:
 
     @Enumerated(EnumType.STRING)
     @Column(name="PD_STATUS")
