@@ -1,5 +1,6 @@
 package com.sinse.universe.model.order;
 
+import com.sinse.universe.domain.Order;
 import com.sinse.universe.dto.request.OrderSubmitRequest;
 import com.sinse.universe.dto.response.OrderForEntResponse;
 import com.sinse.universe.dto.response.OrderForUserResponse;
@@ -16,5 +17,5 @@ public interface OrderService {
     // 유저 페이지) 주문 상세 요청
     public OrderForUserResponse getDetail(int orderId);
     // 유저 페이지) 주문 등록
-    public int submitOrder(OrderSubmitRequest request);
+    public Order submitOrder(OrderSubmitRequest request);
 }
