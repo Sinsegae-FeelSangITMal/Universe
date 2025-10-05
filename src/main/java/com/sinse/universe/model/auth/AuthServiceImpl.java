@@ -50,7 +50,7 @@ public class AuthServiceImpl {
         User user = userRepository.findById(Integer.parseInt(userId))
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        String newAccessToken = jwtUtil.createAccessToken(user.getId(), user.getRole().getName().name(), user.getEmail());
+        String newAccessToken = jwtUtil.createAccessToken(user.getId(), user.getRole().getName().name(), user.getEmail(), user.getName());
         String newRefreshToken = jwtUtil.createRefreshToken(user.getId());
 
         refreshTokenRepository.delete(refreshToken);
@@ -114,7 +114,7 @@ public class AuthServiceImpl {
         user.setName(request.nickname());
         user.setStatus(UserStatus.ACTIVE);
 
-        String accessToken = jwtUtil.createAccessToken(user.getId(), user.getRole().getName().name(), user.getEmail());
+        String accessToken = jwtUtil.createAccessToken(user.getId(), user.getRole().getName().name(), user.getEmail(), user.getName());
         String refreshToken = jwtUtil.createRefreshToken(user.getId());
 
         refreshTokenRepository.save(refreshToken, String.valueOf(user.getId()), jwtUtil.getRefreshTokenTtl());
