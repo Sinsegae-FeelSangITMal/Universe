@@ -14,6 +14,6 @@ public interface StreamService {
     public Stream regist(StreamRequest request) throws IOException;
     public Stream update(int id, StreamRequest request) throws IOException;
     public void delete(int streamId);
-//    public List<Stream> findByArtistId(int streamId);
+   public List<Stream> findByArtistId(int artistId);
     public Page<Stream> findByArtistId(int artistId, Pageable pageable);
 }
