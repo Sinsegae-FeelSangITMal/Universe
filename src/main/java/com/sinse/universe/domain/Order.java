@@ -3,6 +3,7 @@ package com.sinse.universe.domain;
 import com.sinse.universe.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -81,5 +82,6 @@ public class Order {
 
     // OrderItem 매핑하기
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<OrderProduct> orderProducts = new ArrayList<>();
 }

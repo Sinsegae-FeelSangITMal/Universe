@@ -4,6 +4,7 @@ import com.sinse.universe.domain.Stream;
 import com.sinse.universe.dto.request.StreamRequest;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.StreamResponse;
+import com.sinse.universe.enums.StreamStatus;
 import com.sinse.universe.model.stream.StreamService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -86,5 +87,19 @@ public class StreamController {
         return streamService.findByArtistId(artistId, pageable)
                 .map(StreamResponse::from);
     }
+
+
+    // 종료된 스트림만 가져오기
+    @GetMapping("/artists/{artistId}/streams/ended")
+    public List<StreamResponse> getEnded(
+            @PathVariable int artistId
+    ) {
+        return streamService.findByArtistId(artistId)
+                .stream()
+                .filter(stream -> stream.getStatus() == StreamStatus.ENDED)
+                .map(StreamResponse::from)
+                .toList();
+    }
+
 }
 

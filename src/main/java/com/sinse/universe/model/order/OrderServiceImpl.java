@@ -6,7 +6,6 @@ import com.sinse.universe.dto.response.OrderForEntResponse;
 import com.sinse.universe.dto.response.OrderForUserResponse;
 import com.sinse.universe.dto.response.OrderProductForUserResponse;
 import com.sinse.universe.enums.ErrorCode;
-import com.sinse.universe.enums.MembershipStatus;
 import com.sinse.universe.enums.OrderStatus;
 import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.cart.CartRepository;
@@ -17,11 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -98,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
     // 유저 페이지) 주문 등록
     @Override
     @Transactional
-    public int submitOrder(OrderSubmitRequest request) throws CustomException {
+    public Order submitOrder(OrderSubmitRequest request) throws CustomException {
         log.debug("Order submit request: {}", request);
 
         // 새로운 주문내역 생성
@@ -125,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
         order.setPayment(request.paymentMethod());
         order.setTotalPrice(request.totalPrice());
         order.setAgree(request.agree());
-        order.setStatus(OrderStatus.PAID); // 기본 상태: 주문(결제) 완료
+        order.setStatus(OrderStatus.PENDING); // 기본 상태: 결제 대기
         order.setDate(LocalDateTime.now());
 
         // 유저 매핑 (User 엔티티 조회)
@@ -153,35 +150,12 @@ public class OrderServiceImpl implements OrderService {
             op.setPrice(productRequest.price());
 
             order.getOrderProducts().add(op);
-
-            // 멤버십 상품 체크
-            if ("멤버십".equals(product.getCategory().getName())) {
-                Membership membership = new Membership();
-                membership.setUser(user);
-                membership.setArtist(product.getArtist());
-
-                LocalDate start = LocalDate.now();
-                LocalDate end = start.plusYears(1);
-
-                membership.setStartDate(start.atStartOfDay());
-                membership.setEndDate(end.atStartOfDay());
-
-                membershipRepository.save(membership);
-            }
         }
-
 
         // 한 번만 save 호출 → Order + OrderProducts 함께 저장
         orderRepository.save(order);
 
-        // 장바구니에서 삭제
-        List<Integer> productIds = request.items().stream()
-                .map(OrderSubmitRequest.OrderProductRequest::productId)
-                .toList();
-
-        cartRepository.deleteByUser_IdAndProduct_IdIn(user.getId(), productIds);
-
-        return order.getId();
+        return order;
     }
 
     // 주문 번호 생성 메서드 (랜덤값 이용)
