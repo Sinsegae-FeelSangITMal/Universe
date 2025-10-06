@@ -34,9 +34,6 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework:spring-messaging'
-    implementation 'org.jsoup:jsoup:1.17.2'              // XSS/HTML 정화
-    implementation 'org.ahocorasick:ahocorasick:0.6.3'   // 다중 패턴 매칭
-    implementation 'com.hankcs:aho-corasick-double-array-trie:1.2.0'
 
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
