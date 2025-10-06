@@ -104,7 +104,7 @@ public class AuthController {
         PartnerUserDetails userDetails = (PartnerUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
 
-        String accessToken = jwtUtil.createAccessToken(user.getId(), user.getRole().getName().name(), user.getEmail());
+        String accessToken = jwtUtil.createAccessToken(user.getId(), user.getRole().getName().name(), user.getEmail(), user.getName());
         String refreshToken = jwtUtil.createRefreshToken(user.getId());
 
         ResponseCookie cookie = CookieUtil.setResponseCookie(refreshToken, jwtUtil.getRefreshTokenTtl());
