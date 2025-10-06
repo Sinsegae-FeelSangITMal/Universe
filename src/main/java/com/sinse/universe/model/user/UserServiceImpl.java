@@ -1,12 +1,15 @@
 package com.sinse.universe.model.user;
 
+import com.sinse.universe.domain.PartnerUser;
 import com.sinse.universe.domain.User;
 import com.sinse.universe.dto.request.UserJoinRequest;
+import com.sinse.universe.dto.response.PartnerUserResponse;
 import com.sinse.universe.dto.response.UserResponse;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.enums.UserRole;
 import com.sinse.universe.enums.UserStatus;
 import com.sinse.universe.exception.CustomException;
+import com.sinse.universe.model.PartnerUserRepository;
 import com.sinse.universe.model.auth.OAuth2UserInfo;
 import com.sinse.universe.model.role.RoleServiceImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,11 +22,13 @@ public class UserServiceImpl {
     private final RoleServiceImpl roleService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PartnerUserRepository partnerUserRepository;
 
-    public UserServiceImpl(RoleServiceImpl roleService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(RoleServiceImpl roleService, UserRepository userRepository, PasswordEncoder passwordEncoder, PartnerUserRepository partnerUserRepository) {
         this.roleService = roleService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.partnerUserRepository = partnerUserRepository;
     }
 
     public void checkDuplicateEmail(String email){
@@ -60,5 +65,10 @@ public class UserServiceImpl {
     public UserResponse getUserInfo(int userId) {
         User user = userRepository.findById(userId).get();
         return UserResponse.from(user);
+    }
+
+    public PartnerUserResponse getPartnerUserInfo(int userId) {
+        PartnerUser partnerUser = partnerUserRepository.findByUserId(userId).get();
+        return PartnerUserResponse.from(partnerUser);
     }
 }

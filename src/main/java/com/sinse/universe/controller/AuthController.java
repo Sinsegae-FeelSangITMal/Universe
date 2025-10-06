@@ -1,12 +1,15 @@
 package com.sinse.universe.controller;
 
+import com.sinse.universe.domain.User;
 import com.sinse.universe.dto.request.EmailSendRequest;
 import com.sinse.universe.dto.request.EmailVerifyRequest;
 import com.sinse.universe.dto.request.OAuth2JoinRequest;
+import com.sinse.universe.dto.request.BusinessLoginRequest;
 import com.sinse.universe.dto.request.UserJoinRequest;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.TokenPair;
 import com.sinse.universe.model.auth.AuthServiceImpl;
+import com.sinse.universe.model.auth.PartnerUserDetails;
 import com.sinse.universe.util.CookieUtil;
 import com.sinse.universe.util.JwtUtil;
 import jakarta.validation.Valid;
@@ -15,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -30,6 +36,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthServiceImpl authService;
+    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
     // access token 만료 시 재발급 api
@@ -86,5 +93,24 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new ApiResponse<>(true, "회원가입이 완료되었습니다.", null, Map.of("accessToken", tokenPair.accessToken())));
+    }
+
+    @PostMapping("/api/ent/auth/login")
+    public ResponseEntity<ApiResponse<Object>> loginBusinessUser(@RequestBody @Valid BusinessLoginRequest request) {
+        log.debug("auth controller 진입");
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.email(), request.password());
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+        PartnerUserDetails userDetails = (PartnerUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+
+        String accessToken = jwtUtil.createAccessToken(user.getId(), user.getRole().getName().name(), user.getEmail());
+        String refreshToken = jwtUtil.createRefreshToken(user.getId());
+
+        ResponseCookie cookie = CookieUtil.setResponseCookie(refreshToken, jwtUtil.getRefreshTokenTtl());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new ApiResponse<>(true, "로그인 성공", null, Map.of("accessToken", accessToken)));
     }
 }

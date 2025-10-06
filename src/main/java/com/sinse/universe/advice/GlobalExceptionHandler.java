@@ -3,10 +3,11 @@ package com.sinse.universe.advice;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.exception.CustomException;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -87,6 +88,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<Void> handleNoStaticResource(NoResourceFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    /**
+     * UserDetailsService에서 던져지는 예외는 스프링 시큐리티가 예외를 감싸버리기 때문에 따로 처리
+     * 유저 id가 틀릴때 발생하는 Exception
+     */
+    @ExceptionHandler({InternalAuthenticationServiceException.class, BadCredentialsException.class})
+    public ResponseEntity<ApiResponse<Void>> handleLoginIdException(Exception e) {
+        return ApiResponse.error(ErrorCode.USER_NOT_FOUND);
     }
 
     /**
