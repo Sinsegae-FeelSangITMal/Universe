@@ -1,7 +1,9 @@
 package com.sinse.universe.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sinse.universe.domain.Product;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record ProductDetailResponse(
@@ -9,7 +11,8 @@ public record ProductDetailResponse(
         String productName,
         Integer price,
         String detail,
-        String salesOpenAt,
+        @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+        LocalDateTime salesOpenAt,
         Boolean fanLimited,
         Product.ProductStatus productStatus,
         Integer initialStock,
@@ -27,7 +30,7 @@ public record ProductDetailResponse(
                 p.getName(),
                 p.getPrice(),
                 p.getDescription(),
-                String.valueOf(p.getOpenDate()), // 타입이 String이 아니어도 안전
+                p.getOpenDate(), // 타입이 String이 아니어도 안전
                 p.getFanOnly(),
                 p.getStatus(),
                 p.getStockQuantity(),
@@ -47,7 +50,7 @@ public record ProductDetailResponse(
                 p.getName(),
                 p.getPrice(),
                 p.getDescription(),
-                String.valueOf(p.getOpenDate()), // 타입이 String이 아니어도 안전
+                p.getOpenDate(), // 타입이 String이 아니어도 안전
                 p.getFanOnly(),
                 p.getStatus(),
                 p.getStockQuantity(),

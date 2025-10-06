@@ -11,11 +11,12 @@ public record ProductMainResponse(
         String productName,
         int price,
         String mainImageUrl,
+        boolean fan,
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
         LocalDateTime registDate,
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         LocalDateTime openDate
 ) {
     public static ProductMainResponse from(Product p) {
@@ -32,6 +33,7 @@ public record ProductMainResponse(
                 p.getName(),
                 p.getPrice(),
                 mainUrl,
+                p.getFanOnly(),
                 p.getRegistDate(),
                 p.getOpenDate()
         );
