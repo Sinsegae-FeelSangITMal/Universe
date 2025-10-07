@@ -1,6 +1,7 @@
 package com.sinse.universe.controller;
 
 import com.sinse.universe.dto.response.ApiResponse;
+import com.sinse.universe.dto.response.PartnerUserResponse;
 import com.sinse.universe.dto.response.UserResponse;
 import com.sinse.universe.model.user.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,12 @@ public class UserController {
         log.debug("/api/user/me request userId={}", userId);
         UserResponse userResponse = userServiceImpl.getUserInfo(userId);
         return ApiResponse.success("/api/user/me, 유저 정보 반환", userResponse);
+    }
+
+    @GetMapping("/api/ent/user/me")
+    public ResponseEntity<ApiResponse<PartnerUserResponse>> getLoginPartnerUserInfo(@AuthenticationPrincipal int userId) {
+        log.debug("/api/ent/user/me request userId={}", userId);
+        PartnerUserResponse partnerUserResponse = userServiceImpl.getPartnerUserInfo(userId);
+        return ApiResponse.success("/api/ent/user/me, 파트너 유저 정보 반환", partnerUserResponse);
     }
 }

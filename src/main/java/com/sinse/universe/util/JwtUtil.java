@@ -35,7 +35,7 @@ public class JwtUtil {
         this.refreshTokenTtl = refreshTokenTtl;
     }
 
-    public String createAccessToken(int memberId, String roleName, String email) {
+    public String createAccessToken(int memberId, String roleName, String email, String nickname) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + accessTokenTtl.toMillis());
 
@@ -47,6 +47,8 @@ public class JwtUtil {
                 .setExpiration(exp)
                 .claim("role", roleName)
                 .claim("email", email)
+                .claim("userId", memberId) // userId 클레임 추가
+                .claim("nickname", nickname) // nickname 클레임 추가
                 .signWith(key)
                 .compact();
     }

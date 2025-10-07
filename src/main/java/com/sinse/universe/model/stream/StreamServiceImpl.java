@@ -158,6 +158,11 @@ public class StreamServiceImpl implements StreamService {
         return streamRepository.findByArtistId(artistId, pageable);
     }
 
+    @Override
+    public List<Stream> findByArtistId(int artistId) {
+        return streamRepository.findByArtistId(artistId);
+    }
+
     // 파일 저장 메서드
     private String saveFile(MultipartFile file, Integer streamId) throws IOException {
         String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
