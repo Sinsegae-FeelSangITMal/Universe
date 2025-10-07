@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class StreamServiceImpl implements StreamService {
+public
+class StreamServiceImpl implements StreamService {
 
     private final StreamRepository streamRepository;
     private final ArtistRepository artistRepository;
@@ -162,6 +163,16 @@ public class StreamServiceImpl implements StreamService {
     public List<Stream> findByArtistId(int artistId) {
         return streamRepository.findByArtistId(artistId);
     }
+
+    @Override
+    @Transactional
+    public Stream updateRecord(int id, String record) {
+        Stream s = streamRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
+        s.setRecord(record);
+        return streamRepository.save(s);
+    }
+
 
     // 파일 저장 메서드
     private String saveFile(MultipartFile file, Integer streamId) throws IOException {
