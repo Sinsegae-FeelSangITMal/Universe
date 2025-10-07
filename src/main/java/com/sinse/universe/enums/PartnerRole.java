@@ -4,4 +4,3 @@ public enum PartnerRole {
     ADMIN,
     MANAGER
 }
-
