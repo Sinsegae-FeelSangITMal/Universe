@@ -68,6 +68,9 @@ public class Stream {
     @Column(name = "SR_THUMB", length = 200)
     private String thumb;
 
+    @Column(name = "SR_RECORD", length = 500)
+    private String record;
+
     @OneToMany(mappedBy = "stream", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<StreamProduct> streamProducts = new ArrayList<>();
