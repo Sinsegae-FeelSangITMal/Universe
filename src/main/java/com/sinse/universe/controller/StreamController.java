@@ -1,6 +1,7 @@
 package com.sinse.universe.controller;
 
 import com.sinse.universe.domain.Stream;
+import com.sinse.universe.dto.request.StreamRecordUpdateRequest;
 import com.sinse.universe.dto.request.StreamRequest;
 import com.sinse.universe.dto.response.ApiResponse;
 import com.sinse.universe.dto.response.StreamResponse;
@@ -61,6 +62,15 @@ public class StreamController {
         return ApiResponse.success("라이브 수정 성공", StreamResponse.from(stream));
     }
 
+    @PatchMapping("/{id}/record")
+    public ResponseEntity<ApiResponse<StreamResponse>> updateRecord(
+            @PathVariable int id,
+            @RequestBody Map<String, String> body) {
+        String record = body.get("record");
+        Stream updated = streamService.updateRecord(id, record);
+        return ApiResponse.success("녹화 경로 저장 성공", StreamResponse.from(updated));
+    }
+
     // 라이브 삭제
     @DeleteMapping("/{streamId}")
     public ResponseEntity<ApiResponse<Map<String, Object>>> deleteStream(@PathVariable int streamId) {
@@ -69,17 +79,6 @@ public class StreamController {
     }
 
     // 특정 아티스트의 라이브 목록
-//    @GetMapping(params = "artistId")
-//    public ResponseEntity<ApiResponse<List<StreamResponse>>> getStreamsByArtist(
-//            @RequestParam Integer artistId) {
-//
-//        List<StreamResponse> list = streamService.findByArtistId(artistId)
-//                .stream()
-//                .map(StreamResponse::from)
-//                .toList();
-//
-//        return ApiResponse.success("특정 아티스트 라이브 목록 조회 성공", list);
-//    }
     @GetMapping("/artists/{artistId}/streams")
     public Page<StreamResponse> getStreamsByArtist(
             @PathVariable int artistId,
