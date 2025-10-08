@@ -79,7 +79,7 @@ public class ProductServiceImpl implements ProductService {
                 String fname = UploadManager.storeAndReturnName(mainImage, baseDir);
                 uploadedPaths.add(Paths.get(baseDir, fname));
 
-                String url = productMainUrl+"/p" + product.getId() + "/" + fname; // 공개 URL
+                String url = "/images/" + fname; // 공개 URL
                 ProductImage mainImg = new ProductImage();
                 mainImg.setProduct(product);
                 mainImg.setRole(ProductImage.Role.MAIN);
@@ -100,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
                     String fname = UploadManager.storeAndReturnName(file, baseDir);
                     uploadedPaths.add(Paths.get(baseDir, fname));
 
-                    String url = productDetailUrl+"/p" + product.getId() + "/" + fname; // 공개 URL
+                    String url = "/images/" + fname; // 공개 URL
                     ProductImage pi = new ProductImage();
                     pi.setProduct(product);
                     pi.setRole(ProductImage.Role.DETAIL);
@@ -205,7 +205,7 @@ public class ProductServiceImpl implements ProductService {
                 String fname = UploadManager.storeAndReturnName(mainImage, mainBaseDir);
                 uploadedNow.add(Paths.get(mainBaseDir, fname));
 
-                String url = productMainUrl+"/p" + productId + "/" + fname; // 공개 URL
+                String url = "/images/" + fname; // 공개 URL
                 ProductImage newMain = new ProductImage();
                 newMain.setProduct(product);
                 newMain.setRole(ProductImage.Role.MAIN);
@@ -234,7 +234,7 @@ public class ProductServiceImpl implements ProductService {
                     String fname = UploadManager.storeAndReturnName(file, detailBaseDir);
                     uploadedNow.add(Paths.get(detailBaseDir, fname));
 
-                    String url = productDetailUrl+"/p" + productId + "/" + fname; // 공개 URL
+                    String url = "/images/" + fname; // 공개 URL
                     ProductImage pi = new ProductImage();
                     pi.setProduct(product);
                     pi.setRole(ProductImage.Role.DETAIL);
