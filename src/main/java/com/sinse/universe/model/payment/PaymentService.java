@@ -66,9 +66,9 @@ public class PaymentService {
         params.put("total_amount", order.getTotalPrice());                  // 결제 총액
 
         params.put("tax_free_amount", "0");     // 상품 비과세 금액
-        params.put("approval_url", "http://localhost:7777/payment/success?order_id=" + order.getId());        // 결제 성공 시 redirect url, 최대 255자
-        params.put("cancel_url", "http://localhost:7777/payment/cancel");          // 결제 취소 시 redirect url
-        params.put("fail_url", "http://localhost:7777/payment/fail");
+        params.put("approval_url", "http://localhost:7777/api/payment/success?order_id=" + order.getId());        // 결제 성공 시 redirect url, 최대 255자
+        params.put("cancel_url", "http://localhost:7777/api/payment/cancel");          // 결제 취소 시 redirect url
+        params.put("fail_url", "http://localhost:7777/api/payment/fail");
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(params, this.getHeaders());
         log.debug("결제 http 요청 메시지 {}", requestEntity);

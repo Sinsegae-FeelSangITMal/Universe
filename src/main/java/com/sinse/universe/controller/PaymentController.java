@@ -24,7 +24,7 @@ public class PaymentController {
     private final OrderRepository orderRepository;
 
 
-    @GetMapping("/payment/success")
+    @GetMapping("/api/payment/success")
     public RedirectView approve(
             @RequestParam("pg_token") String pgToken,
             @RequestParam("order_id") int orderId
@@ -39,12 +39,12 @@ public class PaymentController {
         return redirectView;
     }
 
-    @GetMapping("/payment/cancel")
+    @GetMapping("/api/payment/cancel")
     public String cancelPayment() {
         return "취소 -_-";
     }
 
-    @GetMapping("/payment/fail")
+    @GetMapping("/api/payment/fail")
     public String failPayment() {
         return "실..패!";
     }
