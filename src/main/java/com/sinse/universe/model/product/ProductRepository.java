@@ -40,7 +40,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             JOIN         p.productImageList pi
             WHERE      p.status = 'ACTIVE'
                 AND      pi.role = 'main'
-                AND      c.name <> '멤버십'
+                AND      c.name <> 'Membership'
             ORDER BY  p.registDate DESC, p.id DESC
             """)
     Page<Product> findLatestActiveWithMainExcludingMembership(
