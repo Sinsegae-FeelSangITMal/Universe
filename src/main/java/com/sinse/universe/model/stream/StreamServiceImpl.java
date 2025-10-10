@@ -3,6 +3,7 @@ package com.sinse.universe.model.stream;
 import com.sinse.universe.domain.*;
 import com.sinse.universe.dto.request.StreamRequest;
 import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.enums.StreamStatus;
 import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.model.promotion.PromotionRepository;
@@ -17,12 +18,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
-public
-class StreamServiceImpl implements StreamService {
+public class StreamServiceImpl implements StreamService {
 
     private final StreamRepository streamRepository;
     private final ArtistRepository artistRepository;
@@ -166,13 +167,26 @@ class StreamServiceImpl implements StreamService {
 
     @Override
     @Transactional
+    public Stream updateStatusToLive(int id) {
+        Stream stream = streamRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
+
+        stream.setStatus(StreamStatus.LIVE);           // ✅ 상태 변경
+        stream.setTime(LocalDateTime.now());           // ✅ 방송 시작 시간 갱신 (선택 사항)
+        return streamRepository.save(stream);
+    }
+
+    @Override
+    @Transactional
     public Stream updateRecord(int id, String record) {
         Stream s = streamRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
+
         s.setRecord(record);
+        s.setStatus(StreamStatus.ENDED);         // ✅ 상태를 ENDED로 변경
+        s.setEndTime(LocalDateTime.now());       // ✅ 종료 시각 기록
         return streamRepository.save(s);
     }
-
 
     // 파일 저장 메서드
     private String saveFile(MultipartFile file, Integer streamId) throws IOException {
