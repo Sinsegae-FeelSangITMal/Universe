@@ -25,7 +25,7 @@ public class CartController {
     }
 
     // 장바구니 항목 추가
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<?> addCart(@RequestBody CartAddRequest request) {
         cartService.addCart(request);
         return ApiResponse.success("장바구니에 추가");
