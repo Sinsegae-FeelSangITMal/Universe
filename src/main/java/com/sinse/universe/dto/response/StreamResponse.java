@@ -37,6 +37,8 @@ public class StreamResponse {
 
     private String thumb;
 
+    private String record;
+
     private Integer artistId;
     private String artistName;
     private Integer promotionId;
@@ -56,6 +58,7 @@ public class StreamResponse {
                 .viewCnt(stream.getViewCnt() != null ? stream.getViewCnt() : 0)
                 .likeCnt(stream.getLikeCnt() != null ? stream.getLikeCnt() : 0)
                 .thumb(stream.getThumb())
+                .record(stream.getRecord())
                 .artistId(stream.getArtist() != null ? stream.getArtist().getId() : null)
                 .artistName(stream.getArtist() != null ? stream.getArtist().getName() : null)
                 .promotionId(stream.getPromotion() != null ? stream.getPromotion().getId() : null)

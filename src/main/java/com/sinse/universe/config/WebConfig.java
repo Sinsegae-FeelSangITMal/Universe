@@ -30,12 +30,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${app.front-server.admin.url}")
     private String frontAdminServerUrl;
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 예: /uploads/** → file:///C:/upload/
-        registry.addResourceHandler(urlPrefix + "/**")
-                .addResourceLocations("file:///" + baseDir + "/");
-    }
+    // local 파일 경로
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        // 예: /uploads/** → file:///C:/upload/
+//        registry.addResourceHandler(urlPrefix + "/**")
+//                .addResourceLocations("file:///" + baseDir + "/");
+//    }
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {

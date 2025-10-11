@@ -1,50 +1,34 @@
 package com.sinse.universe.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 @Slf4j
 @Component
 public class UploadManager {
-    /* ------------------------------------------
-        범용 이미지 업로드 메서드 코드
-        [input] baseDir : 파일 업로드 할 경로명
-        [ouput] return값 : UUID로 바뀐 파일명 반환
-        Service에서 반환받은 문자열로 db에 저장
-    --------------------------------------------- */
-    public static String storeAndReturnName(MultipartFile file, String baseDir) throws IOException {
-        Path dir = createDirectory(baseDir);
 
-        String originalName = file.getOriginalFilename();
-        String ext = (originalName != null && originalName.contains("."))
-                ? originalName.substring(originalName.lastIndexOf(".")) : "";
-        String newFilename = UUID.randomUUID().toString() + ext;
+    private static StorageService storageService;
 
-        Path target = dir.resolve(newFilename);
-        Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-
-        return newFilename; // 파일명을 서비스단에 돌려줌
+    @Autowired
+    public void setStorageService(StorageService storageService) {
+        UploadManager.storageService = storageService;
     }
 
-    // 디렉토리 생성 메서드 정의
-    // createDirectory("c://upload"), createDirectory("p23")
-    public static Path createDirectory(String path) throws IOException {
-        Path dir = Paths.get(path);
-        Path savePath = Paths.get(path).toAbsolutePath().normalize();
-        if(!(Files.exists(dir) && Files.isDirectory(dir))){
-            Files.createDirectories(dir);
-        } else {
-            log.debug("{} 디렉토리가 이미 존재함 ", path);
+    /**
+     * 범용 파일 저장 메서드.
+     * 실제 저장은 주입된 StorageService 구현체에 위임한다.
+     * @param file 업로드할 파일
+     * @param baseDir 저장할 디렉터리
+     * @return 저장된 파일의 키 (예: product/main/uuid.png)
+     */
+    public static String storeAndReturnName(MultipartFile file, String baseDir) throws IOException {
+        if (storageService == null) {
+            throw new IllegalStateException("StorageService is not initialized. Check Spring configuration.");
         }
-        log.debug("savePath 경로 : {}", savePath);
-        return savePath;
+        return storageService.store(file, baseDir);
     }
 }
