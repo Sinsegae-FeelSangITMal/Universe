@@ -16,6 +16,8 @@ public interface StreamService {
     public void delete(int streamId);
    public List<Stream> findByArtistId(int artistId);
     public Page<Stream> findByArtistId(int artistId, Pageable pageable);
-    // SR_ID & SR_RECORD만 업데이트
+    // SR_STATUS 라이브 상태로 변경
+    public Stream updateStatusToLive(int id);
+    // SR_ID & SR_RECORD & SR_STATUS 만 업데이트
     public Stream updateRecord(int id, String record);
 }

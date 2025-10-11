@@ -62,6 +62,12 @@ public class StreamController {
         return ApiResponse.success("라이브 수정 성공", StreamResponse.from(stream));
     }
 
+    @PatchMapping("/{id}/status/live")
+    public ResponseEntity<ApiResponse<StreamResponse>> updateStatusToLive(@PathVariable int id) {
+        Stream updated = streamService.updateStatusToLive(id);
+        return ApiResponse.success("라이브 상태로 변경 성공", StreamResponse.from(updated));
+    }
+
     @PatchMapping("/{id}/record")
     public ResponseEntity<ApiResponse<StreamResponse>> updateRecord(
             @PathVariable int id,
