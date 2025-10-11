@@ -144,11 +144,11 @@ public class StreamServiceImpl implements StreamService {
         Stream stream = streamRepository.findById(streamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
 
-        // 썸네일 삭제
+        // 1) 현재 DB에 저장된 썸네일만 개별 삭제
         deleteObjectByUrl(stream.getThumb());
 
-        // (선택) 해당 스트림 폴더 전체 정리하고 싶다면 ObjectStorageService에 deleteFolderPrefix(prefix) 구현 후 사용
-        // objectStorageService.deleteFolderPrefix("stream/s" + stream.getId());
+        // 2) 혹시 남아있을 수 있는 과거 교체본까지 한 번에 정리
+        objectStorageService.deleteFolderPrefix("stream/s" + stream.getId());
 
         streamRepository.delete(stream);
     }

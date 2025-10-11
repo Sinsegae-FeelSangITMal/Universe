@@ -101,21 +101,25 @@ public class ObjectStorageService implements StorageService {
 
     /**  클라우드 폴더 삭제 */
     public void deleteFolderPrefix(String prefix) {
-        if (prefix == null || prefix.isBlank()) return;
         try {
-            String token = null;
-            do {
-                ListObjectsV2Response list = s3.listObjectsV2(ListObjectsV2Request.builder()
+            var list = s3.listObjectsV2(ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix(prefix.endsWith("/") ? prefix : prefix + "/")
+                    .build());
+
+            if (list.hasContents() && !list.contents().isEmpty()) {
+                var toDelete = list.contents().stream()
+                        .map(o -> ObjectIdentifier.builder().key(o.key()).build())
+                        .toList();
+
+                s3.deleteObjects(DeleteObjectsRequest.builder()
                         .bucket(bucket)
-                        .prefix(prefix.endsWith("/") ? prefix : prefix + "/")
-                        .continuationToken(token)
+                        .delete(d -> d.objects(toDelete))
                         .build());
-                list.contents().forEach(obj -> deleteObject(obj.key()));
-                token = list.nextContinuationToken();
-            } while (token != null);
-            log.info("Deleted all under prefix: s3://{}/{}", bucket, prefix);
+                log.info("Deleted prefix from NCP: s3://{}/{}", bucket, prefix);
+            }
         } catch (Exception e) {
-            log.warn("Failed to delete prefix s3://{}/{} : {}", bucket, prefix, e.getMessage());
+            log.warn("Failed to delete prefix s3://{}/{}: {}", bucket, prefix, e.getMessage());
         }
     }
 }
