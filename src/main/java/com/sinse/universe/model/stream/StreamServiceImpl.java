@@ -1,26 +1,24 @@
 package com.sinse.universe.model.stream;
 
-import com.sinse.universe.domain.*;
+import com.sinse.universe.domain.Artist;
+import com.sinse.universe.domain.Promotion;
+import com.sinse.universe.domain.Stream;
 import com.sinse.universe.dto.request.StreamRequest;
 import com.sinse.universe.enums.ErrorCode;
 import com.sinse.universe.enums.StreamStatus;
 import com.sinse.universe.exception.CustomException;
 import com.sinse.universe.model.artist.ArtistRepository;
 import com.sinse.universe.model.promotion.PromotionRepository;
+import com.sinse.universe.util.ObjectStorageService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class StreamServiceImpl implements StreamService {
@@ -28,20 +26,17 @@ public class StreamServiceImpl implements StreamService {
     private final StreamRepository streamRepository;
     private final ArtistRepository artistRepository;
     private final PromotionRepository promotionRepository;
+    private final ObjectStorageService objectStorageService;
 
     public StreamServiceImpl(StreamRepository streamRepository,
                              ArtistRepository artistRepository,
-                             PromotionRepository promotionRepository) {
+                             PromotionRepository promotionRepository,
+                             ObjectStorageService objectStorageService) {
         this.streamRepository = streamRepository;
         this.artistRepository = artistRepository;
         this.promotionRepository = promotionRepository;
+        this.objectStorageService = objectStorageService;
     }
-
-    @Value("${upload.stream-dir}")
-    private String streamDir;
-
-    @Value("${upload.stream-url}")
-    private String streamUrl;
 
     @Override
     public List<Stream> selectAll() {
@@ -54,7 +49,7 @@ public class StreamServiceImpl implements StreamService {
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
     }
 
-    // 라이브 등록
+    /** 라이브 등록 */
     @Override
     @Transactional
     public Stream regist(StreamRequest request) throws IOException {
@@ -79,33 +74,34 @@ public class StreamServiceImpl implements StreamService {
             stream.setPromotion(promotion);
         }
 
-        // Stream 새로운 라이브 먼저 저장해서 ID 확보
-        Stream saved = streamRepository.save(stream);
+        // 먼저 저장해서 PK 확보
+        Stream saved = streamRepository.saveAndFlush(stream);
 
-        // 썸네일 저장
-        if (request.getThumb() != null && !request.getThumb().isEmpty()) {
-            String savedPath = saveFile(request.getThumb(), saved.getId());
-            saved.setThumb(savedPath);
+        // 썸네일 업로드 (비공개 업로드 → DB에는 프록시 경로 저장)
+        MultipartFile thumb = request.getThumb();
+        if (thumb != null && !thumb.isEmpty()) {
+            String key = objectStorageService.store(thumb, "stream/s" + saved.getId());
+            saved.setThumb("/images/" + key);  // 프론트는 /images/** 로 접근
         }
 
         return streamRepository.save(saved);
     }
 
-    // 라이브 수정
+    /** 라이브 수정 */
     @Override
     @Transactional
     public Stream update(int id, StreamRequest request) throws IOException {
         Stream existing = streamRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
 
-        // 기본 필드 업데이트
+        // 기본 필드
         existing.setTitle(request.getTitle());
         existing.setTime(request.getTime());
         existing.setFanOnly(Boolean.TRUE.equals(request.getFanOnly()));
         existing.setProdLink(Boolean.TRUE.equals(request.getProdLink()));
         existing.setPrYn(Boolean.TRUE.equals(request.getPrYn()));
 
-        // 아티스트 변경
+        // 아티스트
         if (request.getArtistId() != null) {
             Artist artist = artistRepository.findById(request.getArtistId())
                     .orElseThrow(() -> new CustomException(ErrorCode.ARTIST_NOT_FOUND));
@@ -114,47 +110,49 @@ public class StreamServiceImpl implements StreamService {
             existing.setArtist(null);
         }
 
-        // 프로모션 변경
+        // 프로모션
         if (Boolean.TRUE.equals(request.getPrYn()) && request.getPromotionId() != null) {
             Promotion promotion = promotionRepository.findById(request.getPromotionId())
                     .orElseThrow(() -> new CustomException(ErrorCode.PROMOTION_NOT_FOUND));
             existing.setPromotion(promotion);
         } else {
-            existing.setPromotion(null); // SR_PR_YN=false → PM_ID=null
+            existing.setPromotion(null);
         }
 
-        // 썸네일 처리
+        // 썸네일 교체/삭제
         MultipartFile newThumb = request.getThumb();
+        boolean deleteThumbOnly = Boolean.TRUE.equals(request.getDeleteThumb()); // <-- StreamRequest에 필드 추가 필요
 
         if (newThumb != null && !newThumb.isEmpty()) {
-            // 기존 썸네일 삭제
-            if (existing.getThumb() != null) {
-                String fileName = Paths.get(existing.getThumb()).getFileName().toString();
-                Path oldFile = Paths.get(streamDir, "s" + existing.getId(), fileName);
-                Files.deleteIfExists(oldFile);
-            }
-
-            // 새 파일 저장
-            String savedPath = saveFile(newThumb, existing.getId());
-            existing.setThumb(savedPath);
+            // 교체: 기존 삭제 → 새 업로드
+            deleteObjectByUrl(existing.getThumb());
+            String key = objectStorageService.store(newThumb, "stream/s" + existing.getId());
+            existing.setThumb("/images/" + key);
+        } else if (deleteThumbOnly) {
+            // 삭제만: 기존 삭제 → DB null
+            deleteObjectByUrl(existing.getThumb());
+            existing.setThumb(null);
         }
 
-        return existing; // @Transactional → flush 시 DB 반영
+        return streamRepository.save(existing);
     }
 
-    // 라이브 삭제
+    /** 라이브 삭제 */
     @Override
+    @Transactional
     public void delete(int streamId) {
         Stream stream = streamRepository.findById(streamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
+
+        // 썸네일 삭제
+        deleteObjectByUrl(stream.getThumb());
+
+        // (선택) 해당 스트림 폴더 전체 정리하고 싶다면 ObjectStorageService에 deleteFolderPrefix(prefix) 구현 후 사용
+        // objectStorageService.deleteFolderPrefix("stream/s" + stream.getId());
+
         streamRepository.delete(stream);
     }
 
-    // 특정 아티스트의 라이브 조회
-//    @Override
-//    public List<Stream> findByArtistId(int artistId) {
-//        return streamRepository.findByArtistId(artistId);
-//    }
     @Override
     public Page<Stream> findByArtistId(int artistId, Pageable pageable) {
         return streamRepository.findByArtistId(artistId, pageable);
@@ -171,8 +169,8 @@ public class StreamServiceImpl implements StreamService {
         Stream stream = streamRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
 
-        stream.setStatus(StreamStatus.LIVE);           // ✅ 상태 변경
-        stream.setTime(LocalDateTime.now());           // ✅ 방송 시작 시간 갱신 (선택 사항)
+        stream.setStatus(StreamStatus.LIVE);
+        stream.setTime(LocalDateTime.now());
         return streamRepository.save(stream);
     }
 
@@ -183,23 +181,25 @@ public class StreamServiceImpl implements StreamService {
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
 
         s.setRecord(record);
-        s.setStatus(StreamStatus.ENDED);         // ✅ 상태를 ENDED로 변경
-        s.setEndTime(LocalDateTime.now());       // ✅ 종료 시각 기록
+        s.setStatus(StreamStatus.ENDED);
+        s.setEndTime(LocalDateTime.now());
         return streamRepository.save(s);
     }
 
-    // 파일 저장 메서드
-    private String saveFile(MultipartFile file, Integer streamId) throws IOException {
-        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        Path dirPath = Paths.get(streamDir, "s" + streamId);
-        if (!Files.exists(dirPath)) {
-            Files.createDirectories(dirPath);
-        }
-        Path filePath = dirPath.resolve(filename);
-        file.transferTo(filePath.toFile());
+    /* ===== 유틸 ===== */
 
-        // 현재
-        return streamUrl + "/s" + streamId + "/" + filename;
+    /** DB에 저장된 "/images/{objectKey}"에서 objectKey만 추출 */
+    private String extractKey(String url) {
+        if (url == null || url.isBlank()) return null;
+        final String prefix = "/images/";
+        return url.startsWith(prefix) ? url.substring(prefix.length()) : null;
     }
 
+    /** 스토리지에서 객체 삭제 */
+    private void deleteObjectByUrl(String url) {
+        String key = extractKey(url);
+        if (key != null && !key.isBlank()) {
+            objectStorageService.deleteObject(key);
+        }
+    }
 }
