@@ -21,7 +21,10 @@ public class StreamRequest {
     private Integer artistId;
     private Integer promotionId;
 
+    // StreamRequest.java (필요한 부분만)
     private MultipartFile thumb;
-
     private Boolean deleteThumb;
+
+    public MultipartFile getThumb() { return thumb; }
+    public Boolean getDeleteThumb() { return deleteThumb; }
 }

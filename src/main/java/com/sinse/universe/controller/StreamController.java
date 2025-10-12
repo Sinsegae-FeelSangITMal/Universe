@@ -14,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -62,6 +63,18 @@ public class StreamController {
         return ApiResponse.success("라이브 수정 성공", StreamResponse.from(stream));
     }
 
+    @PatchMapping("/{id}/status/live")
+    public ResponseEntity<ApiResponse<StreamResponse>> updateStatusToLive(@PathVariable int id) {
+        Stream updated = streamService.updateStatusToLive(id);
+        return ApiResponse.success("라이브 상태로 변경 성공", StreamResponse.from(updated));
+    }
+
+    @PatchMapping("/{id}/status/ended")
+    public ResponseEntity<ApiResponse<StreamResponse>> updateStatusToEnded(@PathVariable int id) {
+        Stream updated = streamService.updateStatusToEnded(id);
+        return ApiResponse.success("종료 상태로 변경 성공", StreamResponse.from(updated));
+    }
+
     @PatchMapping("/{id}/record")
     public ResponseEntity<ApiResponse<StreamResponse>> updateRecord(
             @PathVariable int id,
@@ -69,6 +82,16 @@ public class StreamController {
         String record = body.get("record");
         Stream updated = streamService.updateRecord(id, record);
         return ApiResponse.success("녹화 경로 저장 성공", StreamResponse.from(updated));
+    }
+
+    @PostMapping(value = "/{id}/record/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<String>> uploadRecordFile(
+            @PathVariable int id,
+            @RequestPart("file") MultipartFile file) throws IOException {
+
+        // 파일을 저장하고 "/Recording/S{id}/파일명" 형태의 '상대경로'를 리턴
+        String relativePath = streamService.storeRecordFile(id, file);
+        return ApiResponse.success("녹화 파일 업로드 성공", relativePath);
     }
 
     // 라이브 삭제
@@ -86,7 +109,6 @@ public class StreamController {
         return streamService.findByArtistId(artistId, pageable)
                 .map(StreamResponse::from);
     }
-
 
     // 종료된 스트림만 가져오기
     @GetMapping("/artists/{artistId}/streams/ended")
