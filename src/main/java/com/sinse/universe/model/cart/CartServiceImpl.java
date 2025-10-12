@@ -65,7 +65,7 @@ public class CartServiceImpl implements CartService {
             // 제한이 있을 경우 제한된 수량까지만 담기
             cart.setQty(limit);
             cartRepository.save(cart);
-            throw new CustomException(CART_LIMIT);
+            throw new CustomException(CART_LIMIT, "유저당 장바구니 개수 제한을 초과했습니다.");
         }
     }
 

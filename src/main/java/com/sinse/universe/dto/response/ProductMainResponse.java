@@ -10,12 +10,14 @@ public record ProductMainResponse(
         int id,
         String productName,
         int price,
+        Boolean fanOnly,
+        int stockQty,
         String mainImageUrl,
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
         LocalDateTime registDate,
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         LocalDateTime openDate
 ) {
     public static ProductMainResponse from(Product p) {
@@ -31,6 +33,8 @@ public record ProductMainResponse(
                 p.getId(),
                 p.getName(),
                 p.getPrice(),
+                p.getFanOnly(),
+                p.getStockQuantity(),
                 mainUrl,
                 p.getRegistDate(),
                 p.getOpenDate()

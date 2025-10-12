@@ -131,7 +131,7 @@ public class PaymentService {
         // Todo: 멤버십 상품 체크 후 db insert
         List<Product> membershipProductList = order.getOrderProducts().stream()
                 .map(OrderProduct::getProduct)
-                .filter(p -> "멤버십".equals(p.getCategory().getName()))
+                .filter(p -> "Membership".equals(p.getCategory().getName()))
                 .toList();
 
         membershipProductList.forEach(p -> {

@@ -57,7 +57,7 @@ public enum ErrorCode {
 
     // 장바구니 Cart
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니에 해당 항목이 없습니다."),
-    CART_LIMIT(HttpStatus.CONFLICT, "유저당 구매 제한을 초과했습니다."),
+    CART_LIMIT(HttpStatus.CONFLICT, "구매 가능한 최대 개수를 담았습니다"),
     CART_NO_STOCK(HttpStatus.CONFLICT, "상품 "),
 
     // 상품 Product
