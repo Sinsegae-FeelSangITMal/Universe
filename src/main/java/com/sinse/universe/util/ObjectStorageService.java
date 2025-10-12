@@ -1,19 +1,23 @@
 package com.sinse.universe.util;
 
+import com.sinse.universe.enums.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
+
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
@@ -66,7 +70,7 @@ public class ObjectStorageService implements StorageService {
         s3.putObject(put, RequestBody.fromBytes(file.getBytes()));
         log.info("Uploaded to NCP: s3://{}/{}", bucket, key);
 
-        return key;
+        return key; // 예: recording/s68/rec_xxx.webm
     }
 
     public String getPresignedGetUrl(String key, Duration expire) {
@@ -84,7 +88,7 @@ public class ObjectStorageService implements StorageService {
         return p.url().toString();
     }
 
-    /** ✅ 클라우드 객체 삭제 */
+    @Override
     public void deleteObject(String key) {
         if (key == null || key.isBlank()) return;
         try {
@@ -94,12 +98,11 @@ public class ObjectStorageService implements StorageService {
                     .build());
             log.info("Deleted from NCP: s3://{}/{}", bucket, key);
         } catch (Exception e) {
-            // 치명적 실패는 아님 — 로그만
             log.warn("Failed to delete s3://{}/{}: {}", bucket, key, e.getMessage());
         }
     }
 
-    /**  클라우드 폴더 삭제 */
+    @Override
     public void deleteFolderPrefix(String prefix) {
         try {
             var list = s3.listObjectsV2(ListObjectsV2Request.builder()
@@ -120,6 +123,26 @@ public class ObjectStorageService implements StorageService {
             }
         } catch (Exception e) {
             log.warn("Failed to delete prefix s3://{}/{}: {}", bucket, prefix, e.getMessage());
+        }
+    }
+
+    /** ✅ S3 객체를 읽기 전용 스트림으로 반환 */
+    @Override
+    public InputStream getObjectStream(String key) {
+        if (key == null || key.isBlank()) {
+            throw new com.sinse.universe.exception.CustomException(
+                    ErrorCode.INVALID_PARAMETER
+            );
+        }
+        try {
+            ResponseInputStream<GetObjectResponse> in = s3.getObject(
+                    GetObjectRequest.builder().bucket(bucket).key(key).build()
+            );
+            return in; // 호출 측에서 닫기 처리
+        } catch (S3Exception e) {
+            log.warn("S3 getObject failed for s3://{}/{} - {}", bucket, key, e.awsErrorDetails().errorMessage());
+            // 존재하지 않거나 권한 문제 등은 404/403으로 매핑되도록 컨트롤러에서 처리
+            throw e;
         }
     }
 }

@@ -176,15 +176,69 @@ public class StreamServiceImpl implements StreamService {
 
     @Override
     @Transactional
+    public Stream updateStatusToEnded(int id) {
+        Stream stream = streamRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
+
+        // 이미 ENDED면 그대로 반환 (idempotent)
+        if (stream.getStatus() != StreamStatus.ENDED) {
+            stream.setStatus(StreamStatus.ENDED);
+            stream.setEndTime(LocalDateTime.now());
+        }
+        return streamRepository.save(stream);
+    }
+
+    @Override
+    @Transactional
     public Stream updateRecord(int id, String record) {
         Stream s = streamRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
 
-        s.setRecord(record);
+        // ✅ "/recording/..." 로 강제 정규화
+        if (record == null || record.isBlank()) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER);
+        }
+        String r = record.trim();
+        if (!r.startsWith("/recording/")) {
+            // 기존에 "recording/..."로만 넘어오거나, "/stream/..." 같은 오입력 방지
+            r = r.startsWith("recording/") ? ("/" + r) : r.replaceFirst("^/stream/", "/recording/");
+            if (!r.startsWith("/recording/")) {
+                // 마지막 안전장치: 앞에 "/recording/" 붙여줌
+                r = "/recording/" + r.replaceFirst("^/+", "");
+            }
+        }
+
+        s.setRecord(r);
         s.setStatus(StreamStatus.ENDED);
         s.setEndTime(LocalDateTime.now());
         return streamRepository.save(s);
     }
+
+    @Override
+    @Transactional
+    public String storeRecordFile(int id, MultipartFile file) throws IOException {
+        Stream stream = streamRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.STREAM_NOT_FOUND));
+
+        if (file == null || file.isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER);
+        }
+
+        // ✅ 클라우드 버킷 내부 경로: recording/s{id}
+        final String dir = "recording/s" + id;
+
+        // S3(or LocalFileService)로 업로드 → 반환값은 키(예: "recording/s68/<uuid>.webm")
+        final String key = objectStorageService.store(file, dir);
+
+        // ✅ DB/프론트에 저장할 상대경로 정규화: 항상 "/recording/..." 형태로
+        // (혹시 구현에 따라 "recording/..." 혹은 "s68/..."가 올 수 있으니 이중 prefix 예방)
+        String normalized = key.startsWith("/") ? key.substring(1) : key;  // 선행 슬래시 제거
+        if (!normalized.startsWith("recording/")) {
+            normalized = "recording/" + normalized;
+        }
+        return "/" + normalized; // 최종: "/recording/s{id}/파일명"
+    }
+
 
     /* ===== 유틸 ===== */
 

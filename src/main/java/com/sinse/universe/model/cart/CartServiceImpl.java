@@ -13,9 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.sinse.universe.enums.ErrorCode.CART_LIMIT;
-import static com.sinse.universe.enums.ErrorCode.CART_NO_STOCK;
-
 @Service
 public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
@@ -65,7 +62,7 @@ public class CartServiceImpl implements CartService {
             // 제한이 있을 경우 제한된 수량까지만 담기
             cart.setQty(limit);
             cartRepository.save(cart);
-            throw new CustomException(CART_LIMIT);
+            throw new CustomException(ErrorCode.CART_LIMIT);
         }
     }
 
