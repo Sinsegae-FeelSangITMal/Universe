@@ -73,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
                                 Membership membership = null;
 
                                 // 카테고리가 "멤버십"이면 membership 조회
-                                if ("멤버십".equals(op.getProduct().getCategory().getName())) {
+                                if ("Membership".equals(op.getProduct().getCategory().getName())) {
                                     membership = membershipRepository
                                             .findTopByUserIdAndArtistIdOrderByStartDateDesc(
                                                     order.getUser().getId(),
