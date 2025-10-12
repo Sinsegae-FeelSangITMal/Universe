@@ -22,7 +22,7 @@ public class ProductUserServiceImpl implements ProductUserService{
 
     @Override
     public Page<Product> pageNewProducts(Pageable pageable) {
-        return productRepository.findLatestActiveWithMain(pageable);
+        return productRepository.findLatestActiveWithMainExcludingMembership(pageable);
     }
 
     @Override

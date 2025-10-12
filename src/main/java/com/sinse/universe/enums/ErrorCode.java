@@ -59,6 +59,8 @@ public enum ErrorCode {
     ARTIST_DELETE_NOT_ALLOWED(HttpStatus.CONFLICT, "연관 데이터가 있어 아티스트를 삭제할 수 없습니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 가입된 이메일입니다."),
     ALREADY_REGISTERED_USER(HttpStatus.CONFLICT, "이미 가입한 회원입니다."),
+
+    // 상품 Product
     OUT_OF_STOCK(HttpStatus.CONFLICT, "재고가 부족합니다."),
     CART_LIMIT(HttpStatus.CONFLICT, "유저당 구매 제한을 초과했습니다."),
     CART_NO_STOCK(HttpStatus.CONFLICT, "상품 재고가 없습니다."),
