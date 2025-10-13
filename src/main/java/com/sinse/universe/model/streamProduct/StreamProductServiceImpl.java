@@ -117,6 +117,7 @@ public class StreamProductServiceImpl implements StreamProductService {
         }
     }
 
+    @Transactional
     @Override
     public void removeProductsByStream(int streamId) {
         streamProductRepository.deleteByStreamId(streamId);
