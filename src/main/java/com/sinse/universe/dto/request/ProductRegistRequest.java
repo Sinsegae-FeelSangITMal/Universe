@@ -2,6 +2,8 @@ package com.sinse.universe.dto.request;
 
 import com.sinse.universe.domain.Product;
 import jakarta.validation.constraints.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDateTime;
 
 public record ProductRegistRequest(
@@ -16,6 +18,7 @@ public record ProductRegistRequest(
         @NotNull @PositiveOrZero
         Integer price,
 
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime salesOpenAt,
 
         Boolean fanLimited,

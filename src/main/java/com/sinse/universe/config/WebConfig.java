@@ -29,20 +29,19 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Value("${app.front-server.admin.url}")
     private String frontAdminServerUrl;
-    
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // 모든 요청 경로 허용
-                        .allowedOrigins(frontUserServerUrl, frontPartnerServerUrl, frontAdminServerUrl) // 프론트 서버들
-                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")   // 헤더에 accessToken 정보가 담겨오기 때문에 허용
-                        .allowCredentials(true) // 인증정보(쿠키) 포함 허용 여부
-                        .exposedHeaders("Location")   // 필요 시 응답 헤더 노출
-                        .maxAge(3600);                // 프리플라이트 캐시
-            }
-        };
-    }
+//    @Bean
+//    public WebMvcConfigurer corsConfigurer() {
+//        return new WebMvcConfigurer() {
+//            @Override
+//            public void addCorsMappings(CorsRegistry registry) {
+//                registry.addMapping("/**") // 모든 요청 경로 허용
+//                        .allowedOrigins(frontUserServerUrl, frontPartnerServerUrl, frontAdminServerUrl) // 프론트 서버들
+//                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+//                        .allowedHeaders("*")   // 헤더에 accessToken 정보가 담겨오기 때문에 허용
+//                        .allowCredentials(true) // 인증정보(쿠키) 포함 허용 여부
+//                        .exposedHeaders("Location")   // 필요 시 응답 헤더 노출
+//                        .maxAge(3600);                // 프리플라이트 캐시
+//            }
+//        };
+//    }
 }
