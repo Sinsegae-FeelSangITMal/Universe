@@ -41,5 +41,5 @@ out/
 Thumbs.db
 
 ## 기타
-/src/main/resources/application.propertiesnohub.out
+/src/main/resources/application.properties
 nohup.out
