@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Integer> {
-    public List<Order> findByUser_Id(int userId);
+    public List<Order> findByUser_IdOrderByDateDesc(int userId);
 
     // 특정 아티스트의 주문 목록만 가져오기
     @Query("SELECT DISTINCT o       FROM Order o " +
