@@ -56,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
     // 유저 페이지) 유저의 주문 목록 요청
     @Override
     public List<OrderForUserResponse> getListByUserId(int userId) {
-        return orderRepository.findByUser_Id(userId).stream()
+        return orderRepository.findByUser_IdOrderByDateDesc(userId).stream()
                 .map(OrderForUserResponse::from)
                 .toList();
     }
