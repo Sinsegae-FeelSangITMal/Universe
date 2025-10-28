@@ -1,0 +1,110 @@
+package com.sinse.universe.advice;
+
+import com.sinse.universe.dto.response.ApiResponse;
+import com.sinse.universe.enums.ErrorCode;
+import com.sinse.universe.exception.CustomException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+// 컨트롤러 단에서 발생한 예외를 잡아서 처리하는 곳
+// 사용할때는 throw new CustomException(ErrorCode.xxx)
+// -> 던져진 에러는 이곳에서 처리
+@Slf4j
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
+        log.error("CustomException 발생 - code: {}, message: {}", e.getErrorCode(), e.getMessage(), e);
+        return ApiResponse.error(e.getErrorCode());
+    }
+
+    /*
+        {
+          "success": false,
+          "message": "입력값이 올바르지 않습니다.",
+          "code": "INVALID_INPUT",
+          "data": [
+                {
+                  "field": "email",
+                  "message": "올바른 이메일 형식이 아닙니다."
+                },
+                {
+                  "field": "password",
+                  "message": "비밀번호는 8자 이상이어야 합니다."
+                }
+            ]
+        }
+ */
+
+    /**
+     * @Valid 검증 과정에서 발생한 에러를 잡아서 처리하는 곳
+     * @Param e : 어떤 필드에서 에러가 났는지 정보도 보유하고 있어서 그걸 응답메시지에 담아 프론트로 전송.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Object>> handleValidationException(MethodArgumentNotValidException e) {
+
+        log.error("Validation failed - {} errors", e.getBindingResult().getErrorCount(), e);
+
+        List<Map<String, String>> errors = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> {
+                        Map<String, String> map = new LinkedHashMap<>();   // 순서가 보장되는 LinkedHashMap 사용
+                        map.put("field", error.getField());
+                        map.put("message", error.getDefaultMessage());
+                        map.put("rejected", error.getRejectedValue().toString());
+                        return map;
+                    }
+                )
+                .toList();
+
+        return ApiResponse.error(ErrorCode.INVALID_INPUT, errors);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMaxUpload(MaxUploadSizeExceededException ex) {
+        log.debug("MaxUploadSizeExceededException 동작");
+        return ApiResponse.error(ErrorCode.FILE_TOO_LARGE, Map.of(
+                "hint", "파일이 너무 큽니다. (최대 10MB)"
+        ));
+    }
+
+    /**
+     * 정적 리소스(이미지 등) 미존재 시: 404만 내리고 로그는 남기지 않음
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Void> handleNoStaticResource(NoResourceFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    /**
+     * UserDetailsService에서 던져지는 예외는 스프링 시큐리티가 예외를 감싸버리기 때문에 따로 처리
+     * 유저 id가 틀릴때 발생하는 Exception
+     */
+    @ExceptionHandler({InternalAuthenticationServiceException.class, BadCredentialsException.class})
+    public ResponseEntity<ApiResponse<Void>> handleLoginIdException(Exception e) {
+        return ApiResponse.error(ErrorCode.USER_NOT_FOUND);
+    }
+
+    /**
+     * 잡히지 않은 예외가 있는 경우에도 로그에 찍히도록 보장
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
+        log.error("Unhandled Exception 발생", e);
+        return ApiResponse.error(ErrorCode.UNHANDLED_EXCEPTION);
+    }
+}

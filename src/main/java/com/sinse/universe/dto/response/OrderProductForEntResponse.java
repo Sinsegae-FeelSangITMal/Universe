@@ -1,0 +1,20 @@
+package com.sinse.universe.dto.response;
+
+import com.sinse.universe.domain.Order;
+import com.sinse.universe.domain.OrderProduct;
+
+import java.time.LocalDateTime;
+
+public record OrderProductForEntResponse(
+        Integer qty,
+        String name,
+        String artistName
+) {
+    public static OrderProductForEntResponse from(OrderProduct op) {
+        return new OrderProductForEntResponse(
+                op.getQty(),
+                op.getProduct().getName(),
+                op.getProduct().getArtist().getName()
+        );
+    }
+}
