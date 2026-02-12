@@ -109,12 +109,13 @@ Universe-React (User / Partner Front)
 
 | Repo | Description |
 |------|-------------|
-| [Universe-Gateway](https://github.com/JiksGit/Universe-Gateway) | API Gateway (Spring Cloud) |
-| [Universe-Core](https://github.com/JiksGit/Universe-Core) | 메인 서비스 (회원, 상품, 주문, 결제) |
-| [Universe-Chat](https://github.com/JiksGit/Universe-Chat) | Redis 기반 실시간 채팅 |
-| [Universe-Live](https://github.com/JiksGit/Universe-Live) | WebRTC 방송 송출 서버 |
-| [Universe-React-User](https://github.com/JiksGit/Universe-React-User) | 사용자 웹 |
-| [Universe-React-Partner](https://github.com/JiksGit/Universe-React-Partner) | 판매자 웹 |
+| [Universe-Gateway](https://github.com/Sinsegae-FeelSangITMal/Universe-Gateway) | API Gateway (Spring Cloud) |
+| [Universe-Eureka](https://github.com/Sinsegae-FeelSangITMal/Universe-Eureka) | Eureka Server |
+| [Universe](https://github.com/Sinsegae-FeelSangITMal/Universe) | 메인 서비스 (회원, 상품, 주문, 결제) |
+| [Universe-Chat](https://github.com/Sinsegae-FeelSangITMal/Universe-Chat) | Redis 기반 실시간 채팅 |
+| [Universe-Live](https://github.com/Sinsegae-FeelSangITMal/Universe-Live) | WebRTC 방송 송출 서버 |
+| [Universe-React-User](https://github.com/Sinsegae-FeelSangITMal/Universe-React-User) | 사용자 웹 |
+| [Universe-React-Admin](https://github.com/Sinsegae-FeelSangITMal/Universe-React-Admin) | 판매자 웹 |
 
 ---
 
